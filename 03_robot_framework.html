@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 3: Robot Framework</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 20px; padding: 2px 12px; font-size: 13px; font-weight: bold; margin-right: 8px; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="00_index.html">🏠 หน้าหลัก</a>
+  <a href="01_api_automation.html">📡 บทที่ 1: API</a>
+  <a href="02_playwright.html">🎭 บทที่ 2: Playwright</a>
+  <a href="03_robot_framework.html">🤖 บทที่ 3: Robot</a>
+  <a href="04_cicd.html">🚀 บทที่ 4: CI/CD</a>
+  <a href="05_interview_guide.html">🎯 บทที่ 5: สัมภาษณ์</a>
+</nav>
+
+<h1>🤖 บทที่ 3: Robot Framework</h1>
+<p>บทนี้จะสอน Robot Framework ตั้งแต่แนวคิด โครงสร้าง จนถึงเขียน test จริง</p>
+
+<hr>
+
+
+<h2>🤖 Robot Framework คืออะไร? มันคือ Tool ตัวไหน?</h2>
+<p>Robot Framework คือ <strong>tool สำหรับเขียน automated test</strong> ที่ใช้ภาษาอ่านง่าย เรียกว่า keyword-driven ใครก็อ่านรู้เรื่อง แม้ไม่รู้ code</p>
+
+<table>
+  <tr><th>ส่วนประกอบ</th><th>คืออะไร</th><th>เปรียบเหมือน</th></tr>
+  <tr><td>VS Code</td><td>โปรแกรมที่ใช้เขียน code</td><td>โรงงาน (ที่ทำงาน)</td></tr>
+  <tr><td>Python</td><td>ภาษาที่ใช้ติดตั้ง library</td><td>ภาษาที่ใช้สั่งงาน</td></tr>
+  <tr><td>Robot Framework</td><td>tool ที่ใช้เขียน test</td><td>เครื่องจักรในโรงงาน</td></tr>
+  <tr><td>Library (Browser/Requests)</td><td>ชุดคำสั่งสำเร็จรูปที่ import มาใช้</td><td>อุปกรณ์เสริมของเครื่องจักร</td></tr>
+</table>
+
+<div class="box">
+  <strong>Robot Framework ต่างจาก Playwright ยังไง?</strong><br><br>
+  Playwright → เขียนด้วย Python ต้องรู้ programming<br>
+  Robot Framework → เขียนด้วย keyword ภาษาธรรมดา ไม่ต้องรู้ programming ก็อ่านออก<br><br>
+  <strong>ใช้ tool เดียวกันได้มั้ย?</strong> ได้! Robot Framework ใช้ Playwright เป็น engine ข้างใน ผ่าน Browser Library
+</div>
+
+<hr>
+
+<h2>🔑 Keyword-driven Testing คืออะไร?</h2>
+<p>แทนที่จะเขียน code ยาวๆ เราใช้ "keyword" ที่อ่านแล้วเข้าใจทันที</p>
+
+<pre><code class="language-python"># Playwright — ต้องรู้ Python ถึงจะอ่านออก
+page.fill("#user-name", "standard_user")
+page.fill("#password", "secret_sauce")
+page.click("#login-button")
+</code></pre>
+
+<pre><code class="language-robot"># Robot Framework — อ่านเข้าใจทันทีแม้ไม่รู้ code
+Fill Text    id=user-name    standard_user
+Fill Text    id=password     secret_sauce
+Click        id=login-button
+</code></pre>
+
+<div class="box">
+  <strong>ข้อดีของ Robot Framework:</strong><br>
+  ✅ อ่านง่าย คนที่ไม่เขียน code ก็อ่านรู้เรื่อง<br>
+  ✅ report สวยงามในตัว ไม่ต้องติดตั้งเพิ่ม<br>
+  ✅ เหมาะกับทีมที่มีทั้ง dev และ non-dev<br>
+  ✅ ใช้ Playwright เป็น engine ข้างใน ผ่าน Browser Library
+</div>
+
+<hr>
+
+<h2>📐 โครงสร้าง Robot Framework มี 4 ส่วน — ทั้งหมดอยู่ในไฟล์เดียว</h2>
+<p>นี่คือความต่างจาก Playwright ที่แยกหลายไฟล์ Robot Framework ใส่ทุกอย่างในไฟล์ .robot ไฟล์เดียว</p>
+
+<table>
+  <tr><th>ส่วน</th><th>หน้าที่</th><th>ต้องมีมั้ย</th></tr>
+  <tr><td><code class="inline">*** Settings ***</code></td><td>บอกว่าจะใช้ Library อะไร เหมือน import ใน Python</td><td>ถ้าใช้ Library ต้องมี</td></tr>
+  <tr><td><code class="inline">*** Variables ***</code></td><td>ตัวแปรที่ใช้ซ้ำบ่อยๆ เก็บไว้ที่เดียว</td><td>ไม่บังคับ</td></tr>
+  <tr><td><code class="inline">*** Test Cases ***</code></td><td>test case จริงๆ อยู่ตรงนี้</td><td>ต้องมีเสมอ</td></tr>
+  <tr><td><code class="inline">*** Keywords ***</code></td><td>สร้าง keyword ของตัวเองเพื่อใช้ซ้ำ เหมือน function ใน Python</td><td>ไม่บังคับ</td></tr>
+</table>
+
+<pre><code class="language-plaintext">Robot Framework — ทุกอย่างในไฟล์เดียว
+─────────────────────────────────────
+login.robot
+├── *** Settings ***    ← import Library ที่จะใช้
+├── *** Variables ***   ← ตัวแปรที่ใช้ซ้ำ เช่น URL, username
+├── *** Test Cases ***  ← test จริงๆ แต่ละ test case อยู่ตรงนี้
+└── *** Keywords ***    ← keyword ที่สร้างเองเพื่อใช้ซ้ำ
+
+
+Playwright — แยกออกเป็นหลายไฟล์
+─────────────────────────────────
+โปรเจกต์/
+├── pages/login_page.py   ← แผนที่หน้าเว็บ
+└── tests/test_login.py   ← test case
+</code></pre>
+
+<hr>
+
+<h2>📚 Library คืออะไร? มีอะไรบ้าง?</h2>
+<p>Library คือชุดของ keyword สำเร็จรูปที่เราเรียกใช้ได้เลย เหมือน import ใน Python</p>
+
+<table>
+  <tr><th>Library</th><th>ใช้ทำอะไร</th><th>ติดตั้งยังไง</th></tr>
+  <tr><td>Browser</td><td>ควบคุม browser (ใช้ Playwright เป็น engine) — ทำ UI test</td><td>pip install robotframework-browser</td></tr>
+  <tr><td>RequestsLibrary</td><td>ยิง API เหมือน requests ใน Python — ทำ API test</td><td>pip install robotframework-requests</td></tr>
+  <tr><td>BuiltIn</td><td>keyword พื้นฐาน เช่น Log, Should Be Equal, Sleep</td><td>มาพร้อม Robot ไม่ต้องติดตั้ง</td></tr>
+  <tr><td>Collections</td><td>จัดการ list และ dictionary</td><td>มาพร้อม Robot ไม่ต้องติดตั้ง</td></tr>
+  <tr><td>String</td><td>จัดการ text เช่น ตัดคำ แปลงตัวอักษร</td><td>มาพร้อม Robot ไม่ต้องติดตั้ง</td></tr>
+</table>
+
+<div class="box">
+  <strong>เปรียบกับ Playwright:</strong><br>
+  Robot: <code class="inline">Library Browser</code> → Playwright: <code class="inline">from playwright.sync_api import Page, expect</code><br>
+  Robot: <code class="inline">Library RequestsLibrary</code> → Playwright: <code class="inline">import requests</code>
+</div>
+
+<hr>
+
+
+<h3>ประเภทที่ 1: Built-in Library — มาพร้อม Robot ไม่ต้องติดตั้ง</h3>
+<table>
+  <tr><th>Library</th><th>ใช้ทำอะไร</th><th>ตัวอย่าง keyword</th></tr>
+  <tr><td>BuiltIn</td><td>keyword พื้นฐานทั่วไป</td><td>Log, Should Be Equal, Sleep</td></tr>
+  <tr><td>Collections</td><td>จัดการ list และ dictionary</td><td>Get From List, Dictionary Should Contain Key</td></tr>
+  <tr><td>String</td><td>จัดการ text</td><td>Convert To Uppercase, Split String</td></tr>
+  <tr><td>DateTime</td><td>จัดการวันเวลา</td><td>Get Current Date, Add Time To Date</td></tr>
+  <tr><td>OperatingSystem</td><td>จัดการไฟล์และโฟลเดอร์</td><td>File Should Exist, Create Directory</td></tr>
+</table>
+
+<h3>ประเภทที่ 2: External Library — ต้องติดตั้งเพิ่ม</h3>
+<table>
+  <tr><th>Library</th><th>ใช้ทำอะไร</th><th>ติดตั้ง</th></tr>
+  <tr><td>Browser Library</td><td>UI test ใช้ Playwright เป็น engine — <strong>ใหม่กว่า แนะนำ</strong></td><td>pip install robotframework-browser</td></tr>
+  <tr><td>SeleniumLibrary</td><td>UI test ใช้ Selenium เป็น engine — เก่ากว่า</td><td>pip install robotframework-selenium2library</td></tr>
+  <tr><td>RequestsLibrary</td><td>API test ยิง HTTP request</td><td>pip install robotframework-requests</td></tr>
+  <tr><td>DatabaseLibrary</td><td>ต่อ database โดยตรง</td><td>pip install robotframework-databaselibrary</td></tr>
+  <tr><td>AppiumLibrary</td><td>test mobile app</td><td>pip install robotframework-appiumlibrary</td></tr>
+  <tr><td>SSHLibrary</td><td>ต่อ server ผ่าน SSH</td><td>pip install robotframework-sshlibrary</td></tr>
+</table>
+
+<hr>
+
+<h2>🆚 Selenium คืออะไร? ต่างจาก Browser Library ยังไง?</h2>
+<p>นี่คือจุดที่หลายคนสับสน ต้องแยกให้ออกนะ</p>
+
+<table>
+  <tr><th></th><th>Selenium</th><th>Playwright</th></tr>
+  <tr><td>คืออะไร</td><td>tool/engine สำหรับควบคุม browser</td><td>tool/engine สำหรับควบคุม browser</td></tr>
+  <tr><td>อายุ</td><td>เก่ากว่า มีมานานแล้ว</td><td>ใหม่กว่า Microsoft สร้าง</td></tr>
+  <tr><td>ความเร็ว</td><td>ช้ากว่า</td><td>✅ เร็วกว่ามาก</td></tr>
+  <tr><td>Auto-wait</td><td>❌ ต้องเขียน sleep() เอง</td><td>✅ รอ element พร้อมเอง</td></tr>
+  <tr><td>ใช้ใน Robot ผ่าน</td><td>SeleniumLibrary</td><td>Browser Library</td></tr>
+</table>
+
+<pre><code class="language-plaintext">เปรียบให้เห็นภาพ:
+
+Browser Library   ใช้  Playwright  เป็น engine  ← ใหม่กว่า เร็วกว่า แนะนำ
+SeleniumLibrary   ใช้  Selenium    เป็น engine  ← เก่ากว่า ช้ากว่า
+
+ทั้งคู่ทำสิ่งเดียวกัน คือควบคุม browser
+แต่ Browser Library ดีกว่าในแทบทุกด้าน
+</code></pre>
+
+<div class="warn">
+  <strong>แล้วทำไมบางบริษัทยังใช้ SeleniumLibrary อยู่?</strong><br>
+  เพราะมี codebase เก่าที่เขียนด้วย Selenium ไว้แล้ว การเปลี่ยนทั้งหมดต้องใช้เวลาและ effort มาก
+  ถ้าเริ่มโปรเจกต์ใหม่ แนะนำให้ใช้ Browser Library เลย
+</div>
+
+<hr>
+
+<h2>🏆 โดยปกตินิยมใช้ Library ตัวไหน?</h2>
+
+<table>
+  <tr><th>ประเภท test</th><th>Library ที่นิยม</th><th>เหตุผล</th></tr>
+  <tr><td>UI Automation (ใหม่)</td><td>✅ Browser Library</td><td>ใช้ Playwright เป็น engine เร็วกว่า auto-wait</td></tr>
+  <tr><td>UI Automation (เก่า)</td><td>SeleniumLibrary</td><td>มี codebase เก่าอยู่แล้ว</td></tr>
+  <tr><td>API Automation</td><td>✅ RequestsLibrary</td><td>ตัวเดียวที่นิยม ใช้งานง่าย</td></tr>
+  <tr><td>Mobile Automation</td><td>AppiumLibrary</td><td>รองรับ iOS และ Android</td></tr>
+</table>
+
+<div class="box">
+  <strong>สรุปจำง่ายๆ:</strong><br><br>
+  ทำ UI test → ใช้ <strong>Browser Library</strong> (ถ้าเริ่มใหม่)<br>
+  ทำ UI test → ใช้ <strong>SeleniumLibrary</strong> (ถ้ามี codebase เก่า)<br>
+  ทำ API test → ใช้ <strong>RequestsLibrary</strong> (ตัวเดียวที่นิยม)
+</div>
+
+<hr>
+
+<h2>⌨️ Keyword สำคัญที่ต้องรู้ใน Browser Library</h2>
+<p>Browser Library มี keyword ของตัวเองแบ่งเป็น 3 กลุ่มเหมือน Playwright</p>
+
+<h3>กลุ่มที่ 1: Navigation — เปิดเว็บ</h3>
+<pre><code class="language-robot">New Browser    chromium    headless=true   # เปิด browser ใหม่
+New Page       https://www.saucedemo.com   # เปิด tab ใหม่ไปที่ URL
+Go To          https://www.saucedemo.com   # ไปที่ URL
+Close Browser                              # ปิด browser
+</code></pre>
+
+<h3>กลุ่มที่ 2: Action — ทำอะไรบนหน้าเว็บ</h3>
+<pre><code class="language-robot">Fill Text      id=user-name    standard_user   # กรอกข้อความ
+Click          id=login-button                 # กดปุ่ม
+Select Options By    id=dropdown    value      # เลือก dropdown
+Check Checkbox       id=checkbox               # ติ๊ก checkbox
+Take Screenshot                               # ถ่ายรูปหน้าจอ
+Hover          id=menu                        # เอาเมาส์ชี้ที่ element
+</code></pre>
+
+<h3>กลุ่มที่ 3: Assertion — เช็คผล</h3>
+<pre><code class="language-robot">Get Url        ==    https://saucedemo.com/inventory.html   # เช็ค URL
+Get Text       id=error    contains    Username is required  # เช็คข้อความ
+Get Element    id=login-button                              # เช็คว่า element มีอยู่มั้ย
+</code></pre>
+
+<hr>
+
+<h2>⚙️ ติดตั้งก่อนเลย</h2>
+<pre><code class="language-bash"># ติดตั้ง Robot Framework และ Browser Library
+pip install robotframework robotframework-browser
+
+# ติดตั้ง browser สำหรับ Robot Framework
+rfbrowser init
+
+# ถ้าจะทำ API test ด้วย ติดตั้งเพิ่ม
+pip install robotframework-requests
+
+# สร้างโฟลเดอร์
+mkdir robot_tests
+</code></pre>
+
+<hr>
+
+<h2>🚀 เริ่มต้น Step 0 ถึงจบ — UI Automation</h2>
+
+<div class="step">
+  <span class="badge">0</span> <strong>ติดตั้ง VS Code และ Python</strong> ตามที่อธิบายด้านบน
+</div>
+
+<div class="step">
+  <span class="badge">1</span> <strong>ติดตั้ง library</strong>
+  <pre><code class="language-bash">pip install robotframework robotframework-browser
+rfbrowser init
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">2</span> <strong>เปิดเว็บที่จะทดสอบ → คลิกขวา Inspect → หา id ของ element</strong>
+  <pre><code class="language-plaintext">เปิด https://www.saucedemo.com
+คลิกขวาที่ช่อง username → Inspect → id="user-name"
+คลิกขวาที่ช่อง password → Inspect → id="password"
+คลิกขวาที่ปุ่ม login   → Inspect → id="login-button"
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">3</span> <strong>สร้างไฟล์ robot_tests/login.robot</strong>
+  <pre><code class="language-robot"># ===== ส่วนที่ 1: Settings =====
+*** Settings ***
+Library    Browser    # import Browser Library เพื่อควบคุม browser
+
+
+# ===== ส่วนที่ 2: Variables =====
+# เก็บค่าที่ใช้ซ้ำไว้ที่เดียว ถ้าต้องเปลี่ยนแก้แค่นี่
+*** Variables ***
+${URL}          https://www.saucedemo.com
+${VALID_USER}   standard_user
+${VALID_PASS}   secret_sauce
+
+
+# ===== ส่วนที่ 3: Test Cases =====
+*** Test Cases ***
+
+Login With Valid Credentials
+    Open Login Page                              # เรียก keyword ที่สร้างไว้ด้านล่าง
+    Fill Text    id=user-name    ${VALID_USER}   # กรอก username
+    Fill Text    id=password     ${VALID_PASS}   # กรอก password
+    Click        id=login-button                 # กดปุ่ม login
+    Get Url      ==    ${URL}/inventory.html     # เช็คว่า URL เปลี่ยนมั้ย
+
+Login With Wrong Password
+    Open Login Page
+    Fill Text    id=user-name    ${VALID_USER}
+    Fill Text    id=password     wrongpassword
+    Click        id=login-button
+    Get Text     [data-test=error]    contains    Username and password do not match
+
+Login With Empty Username
+    Open Login Page
+    Fill Text    id=user-name    ${EMPTY}        # ${EMPTY} = ค่าว่าง
+    Fill Text    id=password     ${VALID_PASS}
+    Click        id=login-button
+    Get Text     [data-test=error]    contains    Username is required
+
+Login With Empty Password
+    Open Login Page
+    Fill Text    id=user-name    ${VALID_USER}
+    Fill Text    id=password     ${EMPTY}
+    Click        id=login-button
+    Get Text     [data-test=error]    contains    Password is required
+
+Login With Locked User
+    Open Login Page
+    Fill Text    id=user-name    locked_out_user
+    Fill Text    id=password     ${VALID_PASS}
+    Click        id=login-button
+    Get Text     [data-test=error]    contains    Sorry, this user has been locked out
+
+
+# ===== ส่วนที่ 4: Keywords =====
+# สร้าง keyword เองเพื่อใช้ซ้ำ ไม่ต้องเขียนซ้ำทุก test
+*** Keywords ***
+
+Open Login Page
+    New Browser    chromium    headless=true   # เปิด browser
+    New Page       ${URL}                      # เปิดหน้าเว็บ
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">4</span> <strong>รัน test ใน Terminal</strong>
+  <pre><code class="language-bash"># รัน test ทั้งหมด
+robot robot_tests/login.robot
+
+# รัน test เฉพาะ test case ที่ต้องการ
+robot --test "Login With Valid Credentials" robot_tests/login.robot
+
+# รันแล้วเก็บ report ไว้ในโฟลเดอร์ results
+robot --outputdir results robot_tests/login.robot
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">5</span> <strong>ดู Report ที่ได้อัตโนมัติ</strong>
+  <pre><code class="language-plaintext">report.html  → สรุปผล pass/fail ของทุก test case
+log.html     → รายละเอียดทุก step ที่รัน พร้อม screenshot
+output.xml   → ข้อมูลดิบสำหรับ CI/CD
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">6</span> <strong>Push ขึ้น CI/CD</strong>
+  <pre><code class="language-bash">git add .
+git commit -m "feat: add login Robot tests"
+git push
+# GitHub Actions จะรัน robot อัตโนมัติทันที
+</code></pre>
+</div>
+
+<hr>
+
+<h2>🚀 เริ่มต้น Step 0 ถึงจบ — API Automation</h2>
+<p>Robot Framework ทำ API test ได้ด้วย โดยใช้ RequestsLibrary</p>
+
+<div class="step">
+  <span class="badge">1</span> <strong>ติดตั้ง RequestsLibrary</strong>
+  <pre><code class="language-bash">pip install robotframework-requests
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">2</span> <strong>สร้างไฟล์ robot_tests/api_test.robot</strong>
+  <pre><code class="language-robot"># ===== ส่วนที่ 1: Settings =====
+*** Settings ***
+Library    RequestsLibrary   # import library สำหรับยิง API
+
+
+# ===== ส่วนที่ 2: Variables =====
+*** Variables ***
+${BASE_URL}    https://jsonplaceholder.typicode.com
+
+
+# ===== ส่วนที่ 3: Test Cases =====
+*** Test Cases ***
+
+Get User Returns 200
+    # สร้าง session เพื่อเชื่อมต่อกับ API
+    Create Session    myapi    ${BASE_URL}
+
+    # ส่ง GET request ไปที่ /users/1
+    ${response}=    GET On Session    myapi    /users/1
+
+    # เช็ค status code
+    Should Be Equal As Numbers    ${response.status_code}    200
+
+Get User Has Name Field
+    Create Session    myapi    ${BASE_URL}
+    ${response}=    GET On Session    myapi    /users/1
+
+    # แปลง response เป็น dictionary
+    ${body}=    Set Variable    ${response.json()}
+
+    # เช็คว่ามี field name มั้ย
+    Dictionary Should Contain Key    ${body}    name
+
+Create Post Returns 201
+    Create Session    myapi    ${BASE_URL}
+
+    # ข้อมูลที่จะส่งไปสร้างใหม่
+    ${payload}=    Create Dictionary
+    ...    title=test post
+    ...    body=hello world
+    ...    userId=1
+
+    # ส่ง POST request
+    ${response}=    POST On Session    myapi    /posts    json=${payload}
+
+    # เช็ค status code
+    Should Be Equal As Numbers    ${response.status_code}    201
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">3</span> <strong>รัน test</strong>
+  <pre><code class="language-bash">robot robot_tests/api_test.robot
+</code></pre>
+</div>
+
+<hr>
+
+<h2>⚖️ เปรียบเทียบ Robot vs Playwright</h2>
+
+<table>
+  <tr><th>หัวข้อ</th><th>Robot Framework</th><th>Playwright (Python)</th></tr>
+  <tr><td>โครงสร้าง</td><td>ทุกอย่างในไฟล์เดียว 4 ส่วน</td><td>แยกหลายไฟล์ pages/ และ tests/</td></tr>
+  <tr><td>ภาษาที่ใช้</td><td>keyword ภาษาธรรมดา</td><td>Python</td></tr>
+  <tr><td>ความยากในการอ่าน</td><td>✅ อ่านง่าย ไม่ต้องรู้ code</td><td>ต้องรู้ Python</td></tr>
+  <tr><td>เหมาะกับใคร</td><td>QA ที่ไม่ถนัด code</td><td>QA ที่ถนัด code</td></tr>
+  <tr><td>Report</td><td>✅ สวยงามในตัว</td><td>ต้องติดตั้ง plugin เพิ่ม</td></tr>
+  <tr><td>ความยืดหยุ่น</td><td>จำกัดกว่า</td><td>✅ ยืดหยุ่นกว่ามาก</td></tr>
+  <tr><td>CI/CD</td><td>✅ รองรับ</td><td>✅ รองรับ</td></tr>
+  <tr><td>ทำ API test ได้มั้ย</td><td>✅ ได้ ผ่าน RequestsLibrary</td><td>✅ ได้ ผ่าน page.request</td></tr>
+</table>
+
+<hr>
+
+<h2>❓ คำถามสัมภาษณ์ที่ควรรู้</h2>
+
+<h3>ระดับเริ่มต้น</h3>
+<div class="box">
+  <strong>Q: Robot Framework คืออะไร?</strong><br>
+  A: Tool สำหรับเขียน automated test โดยใช้ keyword-driven ทำให้อ่านง่าย ไม่ต้องรู้ code ลึก<br><br>
+
+  <strong>Q: โครงสร้าง Robot Framework มีกี่ส่วน อะไรบ้าง?</strong><br>
+  A: 4 ส่วน คือ Settings (import library), Variables (ตัวแปร), Test Cases (test จริงๆ), Keywords (keyword ที่สร้างเอง)<br><br>
+
+  <strong>Q: Library ใน Robot Framework คืออะไร?</strong><br>
+  A: ชุดของ keyword สำเร็จรูปที่เรียกใช้ได้เลย เช่น Browser Library มี Click, Fill Text, Get Url ให้ใช้<br><br>
+
+  <strong>Q: ${EMPTY} คืออะไร?</strong><br>
+  A: ตัวแปรพิเศษที่มาพร้อม Robot หมายถึงค่าว่าง "" ใช้ทดสอบกรณีไม่กรอกข้อมูล
+</div>
+
+<h3>ระดับกลาง</h3>
+<div class="box">
+  <strong>Q: Keyword-driven testing คืออะไร?</strong><br>
+  A: เขียน test เป็น keyword ที่อ่านเข้าใจง่าย ไม่ต้องรู้ code ลึก เหมาะกับ QA ที่ไม่ถนัด programming<br><br>
+
+  <strong>Q: Robot Framework ต่างจาก Playwright ยังไง?</strong><br>
+  A: Robot ทุกอย่างอยู่ในไฟล์เดียว อ่านง่ายกว่า เหมาะ non-dev, Playwright แยกหลายไฟล์ ยืดหยุ่นกว่า เหมาะ dev<br><br>
+
+  <strong>Q: Robot Framework ทำ API test ได้มั้ย?</strong><br>
+  A: ได้ โดยใช้ RequestsLibrary ซึ่งมี keyword เช่น Create Session, GET On Session, POST On Session<br><br>
+
+  <strong>Q: report.html กับ log.html ต่างกันยังไง?</strong><br>
+  A: report.html = สรุปผล pass/fail ภาพรวม, log.html = รายละเอียดทุก step ที่รัน พร้อม screenshot
+</div>
+
+<hr>
+
+<h2>📋 สรุปบทที่ 3</h2>
+<pre><code class="language-plaintext">Robot Framework
+    ↓
+โครงสร้าง 4 ส่วนในไฟล์เดียว:
+Settings   → import Library ที่จะใช้
+Variables  → ตัวแปรที่ใช้ซ้ำ
+Test Cases → test จริงๆ
+Keywords   → keyword ที่สร้างเองเพื่อใช้ซ้ำ
+    ↓
+เขียน test เป็น keyword อ่านง่าย
+    ↓
+รัน robot แล้วได้ report.html + log.html อัตโนมัติ
+    ↓
+push ขึ้น GitHub → CI/CD รัน test อัตโนมัติ
+</code></pre>
+
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 4: CI/CD Pipeline กับ Azure DevOps</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .danger { background: #fdedec; border-left: 6px solid #e74c3c; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .step { background: white; border: 1px solid #dce6f0; border-radius: 10px; padding: 20px 24px; margin: 16px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .step h3 { margin-top: 0; color: #2c3e50; }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 50%; width: 32px; height: 32px; text-align: center; line-height: 32px; font-weight: bold; margin-right: 10px; font-size: 16px; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+  .tab-container { margin: 20px 0; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 0; }
+  .tab { padding: 10px 20px; background: #dce6f0; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; border: none; font-size: 14px; }
+  .tab.active { background: #2980b9; color: white; }
+  .tab-content { display: none; background: white; border: 1px solid #dce6f0; border-radius: 0 8px 8px 8px; padding: 24px; }
+  .tab-content.active { display: block; }
+</style>
+<script>
+function showTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</head>
+<body>
+<nav>
+  <a href="00_index.html">🏠 หน้าหลัก</a>
+  <a href="01_api_automation.html">📡 บทที่ 1: API</a>
+  <a href="02_playwright.html">🎭 บทที่ 2: Playwright</a>
+  <a href="03_robot_framework.html">🤖 บทที่ 3: Robot</a>
+  <a href="04_cicd.html">🚀 บทที่ 4: CI/CD</a>
+  <a href="05_interview_guide.html">🎯 บทที่ 5: สัมภาษณ์</a>
+</nav>
+<h1>บทที่ 4: CI/CD Pipeline กับ Azure DevOps</h1>
+<p>บทนี้แบ่งเป็น 2 ส่วน กดเลือกได้เลย</p>
+<div class="tab-container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview', this)">ส่วนที่ 1: ภาพรวม CI/CD คืออะไร</button>
+    <button class="tab" onclick="showTab('stepbystep', this)">ส่วนที่ 2: จับมือทำทีละขั้นตอน</button>
+  </div>
+  <div id="overview" class="tab-content active">
+
+    <h2>ก่อนอื่น ลองนึกภาพนี้ก่อนเลย</h2>
+    <p>สมมุติเราทำงานเป็น QA ในบริษัท มีทีม developer 5 คน แต่ละคน push code ขึ้นวันละหลายครั้ง</p>
+    <div class="danger">
+      <strong>ถ้าไม่มี CI/CD เกิดอะไรขึ้น?</strong><br><br>
+      Developer คนที่ 1 แก้ code แล้ว push ขึ้น<br>
+      Developer คนที่ 2 แก้ code แล้ว push ขึ้น<br>
+      Developer คนที่ 3 แก้ code แล้ว push ขึ้น<br><br>
+      QA ต้องนั่งรัน test เองทุกครั้ง วันนึงอาจต้องรัน 10-20 ครั้ง<br>
+      ถ้าลืมรัน หรือรันไม่ทัน → bug หลุดไป production → ลูกค้าเจอ bug
+    </div>
+    <div class="success">
+      <strong>ถ้ามี CI/CD เกิดอะไรขึ้น?</strong><br><br>
+      Developer คนที่ 1 แก้ code แล้ว push ขึ้น → ระบบรัน test อัตโนมัติทันที<br>
+      Developer คนที่ 2 แก้ code แล้ว push ขึ้น → ระบบรัน test อัตโนมัติทันที<br>
+      Developer คนที่ 3 แก้ code แล้ว push ขึ้น → ระบบรัน test อัตโนมัติทันที<br><br>
+      QA ไม่ต้องนั่งรัน test เอง ระบบทำให้หมด<br>
+      ถ้า test fail → แจ้งเตือนทันที → แก้ก่อน merge ได้
+    </div>
+
+    <h2>CI/CD คืออะไร? แยกทีละคำ</h2>
+    <p>หลายคนได้ยินคำนี้แล้วงง เพราะมันเป็นคำย่อ ลองแยกดูทีละคำ</p>
+    <div class="box">
+      <strong>CI = Continuous Integration</strong><br>
+      แปลตรงๆ คือ "การรวม code อย่างต่อเนื่อง"<br>
+      ความหมายจริงๆ คือ ทุกครั้งที่มีการ push code ขึ้นมา ระบบจะรัน test อัตโนมัติทันที<br>
+      เพื่อเช็คว่า code ใหม่ที่เพิ่งเข้ามาทำให้อะไรพังมั้ย<br><br>
+      <strong>CD = Continuous Delivery</strong><br>
+      แปลตรงๆ คือ "การส่ง code อย่างต่อเนื่อง"<br>
+      ความหมายจริงๆ คือ หลังจาก test ผ่านแล้ว ระบบจะ deploy code ขึ้น server อัตโนมัติ<br>
+      โดยไม่ต้องให้ใครมานั่งกด deploy เอง
+    </div>
+    <div class="warn">
+      <strong>ในฐานะ QA เราสนใจแค่ CI เป็นหลัก</strong><br>
+      คือการที่ระบบรัน test script ของเราอัตโนมัติทุกครั้งที่มีการ push code
+    </div>
+
+    <h2>Pipeline คืออะไร? ต่างจาก CI/CD ยังไง?</h2>
+    <p>นี่คือจุดที่หลายคนสับสน ขอแยกให้ชัดเลย</p>
+    <div class="box">
+      <strong>CI/CD คือ "แนวคิด"</strong> — เหมือนการบอกว่า "อยากให้โรงงานผลิตรถยนต์มีระบบตรวจสอบคุณภาพอัตโนมัติ"<br><br>
+      <strong>Pipeline คือ "วิธีทำให้แนวคิดนั้นเกิดขึ้นจริง"</strong> — เหมือนการออกแบบสายพานการผลิตจริงๆ ว่ามีกี่ขั้นตอน แต่ละขั้นทำอะไร<br><br>
+      พูดง่ายๆ คือ Pipeline คือไฟล์ที่เราเขียนบอกว่า "เมื่อมี code ใหม่เข้ามา ให้ทำอะไรบ้าง เรียงตามลำดับ"
+    </div>
+    <pre><code class="language-plaintext">ตัวอย่าง Pipeline ที่เราจะสร้าง:
+
+เมื่อมีการ push code ขึ้น branch main
+        ↓
+ขั้นตอนที่ 1: เปิดเครื่อง Linux เสมือนขึ้นมา
+        ↓
+ขั้นตอนที่ 2: ติดตั้ง Python version 3.11
+        ↓
+ขั้นตอนที่ 3: ติดตั้ง library ทั้งหมดจาก requirements.txt
+        ↓
+ขั้นตอนที่ 4: รัน Playwright test
+        ↓
+ขั้นตอนที่ 5: รัน API test
+        ↓
+ขั้นตอนที่ 6: รัน Robot Framework test
+        ↓
+ขั้นตอนที่ 7: เก็บ report ไว้ให้ดาวน์โหลด
+        ↓
+แจ้งผลว่า pass หรือ fail</code></pre>
+
+    <h2>Azure DevOps คืออะไร? ทำไมต้องใช้?</h2>
+    <p>Azure DevOps คือ platform ของ Microsoft ที่รวมทุกอย่างที่ทีม software ต้องการไว้ในที่เดียว</p>
+    <table>
+      <tr><th>ส่วน</th><th>คืออะไร</th><th>เปรียบเหมือน</th></tr>
+      <tr><td><strong>Repos</strong></td><td>ที่เก็บ code ทั้งหมดบน cloud</td><td>Google Drive แต่สำหรับ code โดยเฉพาะ</td></tr>
+      <tr><td><strong>Pipelines</strong></td><td>รัน test และ deploy อัตโนมัติ</td><td>สายพานโรงงานที่ทำงานเองอัตโนมัติ</td></tr>
+      <tr><td><strong>Boards</strong></td><td>จัดการงาน task และ bug</td><td>Jira หรือ Trello</td></tr>
+      <tr><td><strong>Artifacts</strong></td><td>เก็บผลลัพธ์ เช่น report หลัง test รัน</td><td>ที่เก็บของที่ผลิตได้จากโรงงาน</td></tr>
+      <tr><td><strong>Test Plans</strong></td><td>จัดการ test case</td><td>สมุดบันทึก test case</td></tr>
+    </table>
+    <div class="box">
+      <strong>เราจะใช้แค่ 3 ส่วนหลัก:</strong><br>
+      Repos → เก็บ code และ script test ของเรา<br>
+      Pipelines → รัน test อัตโนมัติทุกครั้งที่ push code<br>
+      Artifacts → เก็บ report ที่ได้หลัง test รันเสร็จ
+    </div>
+
+    <h2>Repo คืออะไร? ทำไมต้องเซต?</h2>
+    <p>ก่อนจะตั้ง Pipeline ได้ ต้องมี Repo ก่อน เพราะ Pipeline ต้องดึง code จาก Repo มารัน</p>
+    <div class="box">
+      <strong>Repo = ที่เก็บ code บน cloud</strong><br><br>
+      ลองนึกภาพว่าเราเขียน test script ไว้บนเครื่องเรา แต่ Pipeline อยู่บน Azure DevOps<br>
+      Pipeline ไม่รู้ว่า code เราอยู่ที่ไหน ถ้าไม่มี Repo<br><br>
+      เราต้อง push code ขึ้น Repo ก่อน แล้ว Pipeline ถึงจะดึงไปรันได้
+    </div>
+    <table>
+      <tr><th>คำศัพท์</th><th>ความหมาย</th><th>เปรียบเหมือน</th></tr>
+      <tr><td>Repository (Repo)</td><td>ที่เก็บ code ทั้งหมดบน cloud</td><td>Google Drive สำหรับ code</td></tr>
+      <tr><td>Branch</td><td>สาขาของ code เช่น main, develop</td><td>สำเนาของ code ที่แยกออกมาทำงานแยกกัน</td></tr>
+      <tr><td>Commit</td><td>บันทึก snapshot ของ code พร้อมข้อความ</td><td>กด Save พร้อมเขียนว่าแก้อะไร</td></tr>
+      <tr><td>Push</td><td>ส่ง code จากเครื่องเราขึ้น Repo</td><td>อัปโหลดขึ้น cloud</td></tr>
+      <tr><td>Pull</td><td>ดึง code จาก Repo มาที่เครื่องเรา</td><td>ดาวน์โหลดจาก cloud</td></tr>
+      <tr><td>Pull Request (PR)</td><td>ขอ merge code จาก branch นึงไปอีก branch</td><td>ส่งงานให้หัวหน้าตรวจก่อน merge</td></tr>
+    </table>
+
+    <h2>azure-pipelines.yml คืออะไร? ทำไมต้องมีไฟล์นี้?</h2>
+    <p>ไฟล์นี้คือ "สูตรการทำงาน" ที่เราเขียนบอก Azure DevOps ว่าให้ทำอะไรบ้าง</p>
+    <div class="box">
+      ลองนึกภาพว่าเราจ้างพนักงานใหม่มาทำงาน<br>
+      เราต้องเขียน "คู่มือการทำงาน" ให้เขาอ่านว่าต้องทำอะไรบ้าง<br><br>
+      azure-pipelines.yml ก็คือ "คู่มือการทำงาน" ของ Pipeline นั่นเอง<br>
+      บอกว่า รันเมื่อไหร่ รันบนเครื่องอะไร และทำอะไรบ้าง
+    </div>
+    <pre><code class="language-yaml"># azure-pipelines.yml อ่านทีละบรรทัด
+
+# trigger = บอกว่าให้รัน pipeline เมื่อไหร่
+# ในที่นี้คือ ทุกครั้งที่มีการ push code ขึ้น branch main
+trigger:
+  branches:
+    include:
+      - main
+
+# pool = บอกว่าจะรันบนเครื่องอะไร
+# ubuntu-latest = เครื่อง Linux ที่ Azure เตรียมให้ฟรี
+# เราไม่ต้องเตรียมเครื่องเอง Azure จัดการให้
+pool:
+  vmImage: ubuntu-latest
+
+# steps = บอกว่าให้ทำอะไรบ้าง เรียงตามลำดับจากบนลงล่าง
+steps:
+
+# ขั้นตอนที่ 1: ติดตั้ง Python version 3.11 บนเครื่องเสมือน
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+  displayName: 'ติดตั้ง Python 3.11'
+
+# ขั้นตอนที่ 2: ติดตั้ง library ทั้งหมดจาก requirements.txt
+# และติดตั้ง browser สำหรับ Playwright
+- script: |
+    pip install -r requirements.txt
+    playwright install chromium
+  displayName: 'ติดตั้ง library ทั้งหมด'
+
+# ขั้นตอนที่ 3: รัน test จริงๆ
+- script: pytest tests/ -v
+  displayName: 'รัน Playwright tests'</code></pre>
+
+    <h2>ภาพรวม Flow การทำงานทั้งหมด</h2>
+    <pre><code class="language-plaintext">เราเขียน test script บนเครื่องเรา (VS Code)
+        ↓
+เราสั่ง git push เพื่อส่ง code ขึ้น Azure Repos
+        ↓
+Azure Pipelines เห็นว่ามี code ใหม่เข้ามา
+(เพราะ trigger ตั้งไว้ว่าให้รันทุกครั้งที่ push)
+        ↓
+Pipeline เปิดเครื่อง Linux เสมือนขึ้นมาเอง
+ติดตั้ง Python และ library เอง
+รัน test script ของเราเอง
+        ↓
+ถ้า test ผ่านหมด
+→ แสดงสีเขียว
+→ merge code ได้เลย
+
+ถ้า test fail
+→ แสดงสีแดง พร้อม error message
+→ ต้องแก้ code แล้ว push ใหม่
+        ↓
+ดู report ได้จาก Artifacts</code></pre>
+
+    <h2>คำถามสัมภาษณ์ที่ควรรู้</h2>
+    <h3>ระดับเริ่มต้น</h3>
+    <div class="box">
+      <strong>Q: CI/CD คืออะไร?</strong><br>
+      A: แนวคิดที่ทำให้การรัน test และ deploy เป็นอัตโนมัติ ทุกครั้งที่มีการ push code ไม่ต้องสั่งเอง ช่วยให้ bug ไม่หลุดไป production<br><br>
+      <strong>Q: Pipeline คืออะไร?</strong><br>
+      A: ไฟล์ที่เขียนสูตรการทำงานไว้ล่วงหน้า บอกว่าเมื่อมี code ใหม่เข้ามาให้ทำอะไรบ้าง เรียงตามลำดับ<br><br>
+      <strong>Q: CI/CD กับ Pipeline เกี่ยวกันยังไง?</strong><br>
+      A: CI/CD คือแนวคิด Pipeline คือวิธีที่ทำให้แนวคิดนั้นเกิดขึ้นจริง<br><br>
+      <strong>Q: Repo คืออะไร ทำไมต้องมีก่อน Pipeline?</strong><br>
+      A: Repo คือที่เก็บ code บน cloud Pipeline ต้องดึง code จาก Repo มารัน ถ้าไม่มี Repo Pipeline ไม่รู้จะเอา code มาจากไหน<br><br>
+      <strong>Q: trigger ใน azure-pipelines.yml คืออะไร?</strong><br>
+      A: บอกว่าให้รัน pipeline เมื่อไหร่ เช่น ทุกครั้งที่ push ขึ้น branch main
+    </div>
+    <h3>ระดับกลาง</h3>
+    <div class="box">
+      <strong>Q: Branch คืออะไร ทำไมต้องมีหลาย branch?</strong><br>
+      A: Branch คือสำเนาของ code ที่แยกออกมา ทำให้แต่ละคนทำงานแยกกันได้โดยไม่กระทบกัน เช่น main สำหรับ production, develop สำหรับพัฒนา<br><br>
+      <strong>Q: Pull Request คืออะไร?</strong><br>
+      A: การขอ merge code จาก branch นึงไปอีก branch เหมือนส่งงานให้หัวหน้าตรวจก่อน merge เมื่อเปิด PR pipeline จะรัน test อัตโนมัติ<br><br>
+      <strong>Q: ถ้า test fail ใน pipeline ต้องทำอะไร?</strong><br>
+      A: ดู error log ใน pipeline แก้ code แล้ว push ขึ้นใหม่ pipeline จะรันอีกครั้งอัตโนมัติ<br><br>
+      <strong>Q: Artifact ใน pipeline คืออะไร?</strong><br>
+      A: ผลลัพธ์ที่ได้จาก pipeline เช่น test report ที่ดาวน์โหลดมาดูได้หลัง pipeline รันเสร็จ
+    </div>
+  </div>
+  <div id="stepbystep" class="tab-content">
+
+    <div class="box">
+      <strong>สิ่งที่ต้องมีก่อนเริ่ม:</strong><br>
+      มี account Azure DevOps — สมัครฟรีที่ <a href="https://dev.azure.com" target="_blank">dev.azure.com</a><br>
+      มี VS Code ติดตั้งแล้ว<br>
+      มี Python ติดตั้งแล้ว<br>
+      มี test script เขียนไว้แล้ว (จากบทที่ 1-3)
+    </div>
+
+    <h2>ภาพรวมที่จะทำทั้งหมด</h2>
+    <pre><code class="language-plaintext">ขั้นตอนที่ 1: สร้าง Project ใน Azure DevOps
+        ↓
+ขั้นตอนที่ 2: ดู Repo ที่ถูกสร้างให้อัตโนมัติ
+        ↓
+ขั้นตอนที่ 3: เตรียม code บนเครื่องเรา
+        ↓
+ขั้นตอนที่ 4: สร้างไฟล์ azure-pipelines.yml
+        ↓
+ขั้นตอนที่ 5: Push code ขึ้น Azure Repos
+        ↓
+ขั้นตอนที่ 6: สร้าง Pipeline ใน Azure DevOps
+        ↓
+ขั้นตอนที่ 7: ดู Pipeline รัน test อัตโนมัติ</code></pre>
+
+    <hr>
+
+    <div class="step">
+      <h3><span class="badge">1</span> สร้าง Project ใน Azure DevOps</h3>
+      <p>Project คือ "พื้นที่ทำงาน" ที่รวม Repo, Pipeline, Boards ไว้ด้วยกัน เหมือนสร้างโฟลเดอร์หลักสำหรับโปรเจกต์นี้</p>
+      <pre><code class="language-plaintext">1. เปิด https://dev.azure.com แล้ว login
+2. ถ้ายังไม่มี Organization → กด "New Organization" แล้วตั้งชื่อ
+3. กด "New Project" ที่มุมขวาบน
+4. ตั้งชื่อ Project เช่น "QA-Automation"
+5. เลือก Visibility เป็น "Private" (ไม่ให้คนนอกเห็น)
+6. กด "Create Project"</code></pre>
+      <div class="success">เสร็จแล้ว! จะเห็นหน้า Project Overview ที่มีเมนูซ้ายมือ</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">2</span> ดู Repo ที่ถูกสร้างให้อัตโนมัติ</h3>
+      <p>Azure DevOps จะสร้าง Repo ให้อัตโนมัติเมื่อสร้าง Project เราแค่ต้อง Initialize มัน</p>
+      <pre><code class="language-plaintext">1. กดที่ "Repos" ในเมนูซ้าย
+2. จะเห็น Repo ที่ชื่อเดียวกับ Project ถูกสร้างให้แล้ว
+3. กด "Initialize" เพื่อสร้าง branch main
+   (ถ้าไม่ Initialize จะยังไม่มี branch ให้ push ขึ้นไปได้)
+4. Copy URL ของ Repo ไว้ใช้ในขั้นตอนที่ 5
+   URL จะหน้าตาแบบนี้:
+   https://dev.azure.com/ชื่อ-org/QA-Automation/_git/QA-Automation</code></pre>
+      <div class="success">เสร็จแล้ว! ตอนนี้มี Repo พร้อมรับ code แล้ว</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">3</span> เตรียม code บนเครื่องเรา</h3>
+      <p>เปิด Terminal บน Mac แล้วพิมพ์ทีละบรรทัด</p>
+      <pre><code class="language-bash"># สร้างโฟลเดอร์โปรเจกต์
+mkdir qa-automation
+cd qa-automation
+
+# สร้าง virtual environment (กล่องแยกสำหรับโปรเจกต์นี้)
+python3 -m venv venv
+
+# เปิดใช้งาน virtual environment
+source venv/bin/activate
+
+# ติดตั้ง library ทั้งหมด
+pip install pytest playwright pytest-playwright requests robotframework robotframework-browser
+
+# ติดตั้ง browser สำหรับ Playwright
+playwright install chromium
+
+# สร้างโครงสร้างโฟลเดอร์
+mkdir pages tests api_tests robot_tests</code></pre>
+
+      <p>จากนั้นสร้างไฟล์ <code class="inline">requirements.txt</code> ใน VS Code แล้วใส่ข้อมูลนี้</p>
+      <pre><code class="language-plaintext">pytest
+playwright
+pytest-playwright
+requests
+pytest-html
+robotframework
+robotframework-browser</code></pre>
+      <div class="warn">requirements.txt สำคัญมาก! Pipeline จะใช้ไฟล์นี้ติดตั้ง library ให้อัตโนมัติบนเครื่องเสมือน</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">4</span> สร้างไฟล์ azure-pipelines.yml</h3>
+      <p>สร้างไฟล์ชื่อ <code class="inline">azure-pipelines.yml</code> ใน root ของโปรเจกต์ (ระดับเดียวกับ requirements.txt)</p>
+      <div class="warn">ชื่อไฟล์ต้องเป็น azure-pipelines.yml เท่านั้น และต้องอยู่ใน root ของโปรเจกต์ ไม่ใช่ในโฟลเดอร์ย่อย</div>
+      <pre><code class="language-yaml"># azure-pipelines.yml
+# ไฟล์นี้บอก Azure DevOps ว่าให้ทำอะไรเมื่อมี code ใหม่เข้ามา
+
+# trigger = รัน pipeline เมื่อไหร่
+# ในที่นี้คือทุกครั้งที่ push ขึ้น branch main หรือ develop
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+# pool = รันบนเครื่องอะไร
+# ubuntu-latest = เครื่อง Linux ที่ Azure เตรียมให้ฟรี ไม่ต้องเตรียมเอง
+pool:
+  vmImage: ubuntu-latest
+
+# stages = ขั้นตอนใหญ่ๆ แต่ละ stage รันแยกกัน
+stages:
+
+# Stage 1: รัน Playwright UI Tests
+- stage: PlaywrightTests
+  displayName: 'Playwright UI Tests'
+  jobs:
+  - job: RunPlaywright
+    steps:
+
+    # ขั้นตอนที่ 1: ติดตั้ง Python
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+      displayName: 'ติดตั้ง Python 3.11'
+
+    # ขั้นตอนที่ 2: ติดตั้ง library
+    - script: |
+        pip install -r requirements.txt
+        playwright install chromium
+      displayName: 'ติดตั้ง library'
+
+    # ขั้นตอนที่ 3: รัน test
+    - script: pytest tests/ -v --html=playwright-report.html
+      displayName: 'รัน Playwright tests'
+
+    # ขั้นตอนที่ 4: เก็บ report ไว้ให้ดาวน์โหลด
+    # condition: always() = เก็บเสมอ แม้ test จะ fail
+    - task: PublishBuildArtifacts@1
+      condition: always()
+      inputs:
+        pathToPublish: 'playwright-report.html'
+        artifactName: 'playwright-report'
+      displayName: 'เก็บ Playwright Report'
+
+# Stage 2: รัน API Tests
+# dependsOn: PlaywrightTests = รอให้ Stage 1 เสร็จก่อน
+- stage: APITests
+  displayName: 'API Tests'
+  dependsOn: PlaywrightTests
+  jobs:
+  - job: RunAPITests
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    - script: pip install -r requirements.txt
+      displayName: 'ติดตั้ง library'
+    - script: pytest api_tests/ -v
+      displayName: 'รัน API tests'
+
+# Stage 3: รัน Robot Framework Tests
+- stage: RobotTests
+  displayName: 'Robot Framework Tests'
+  dependsOn: APITests
+  jobs:
+  - job: RunRobotTests
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    - script: |
+        pip install -r requirements.txt
+        rfbrowser init
+      displayName: 'ติดตั้ง library'
+    - script: robot robot_tests/
+      displayName: 'รัน Robot tests'
+    - task: PublishBuildArtifacts@1
+      condition: always()
+      inputs:
+        pathToPublish: 'report.html'
+        artifactName: 'robot-report'
+      displayName: 'เก็บ Robot Report'</code></pre>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">5</span> Push code ขึ้น Azure Repos</h3>
+      <p>ตอนนี้เรามี code บนเครื่องแล้ว ต้องส่งขึ้น Azure Repos เพื่อให้ Pipeline ดึงไปรันได้</p>
+      <p>เปิด Terminal แล้วพิมพ์ทีละบรรทัด</p>
+      <pre><code class="language-bash"># เข้าไปในโฟลเดอร์โปรเจกต์
+cd qa-automation
+
+# เริ่มต้นใช้ git ในโฟลเดอร์นี้
+# git คือระบบที่ช่วยติดตามการเปลี่ยนแปลงของ code
+git init
+
+# บอก git ว่าจะ track ไฟล์ทั้งหมดในโฟลเดอร์นี้
+git add .
+
+# บันทึก snapshot ของ code พร้อมข้อความอธิบายว่าทำอะไร
+git commit -m "feat: add QA automation tests and pipeline"
+
+# เชื่อม local กับ Azure Repos
+# แทนที่ URL ด้วย URL ที่ copy มาจากขั้นตอนที่ 2
+git remote add origin https://dev.azure.com/your-org/QA-Automation/_git/QA-Automation
+
+# เปลี่ยนชื่อ branch เป็น main
+git branch -M main
+
+# push code ขึ้น Azure Repos ครั้งแรก
+# -u = ตั้งค่า default ว่า push ไปที่ origin/main
+git push -u origin main</code></pre>
+      <div class="success">เสร็จแล้ว! ไปดูใน Azure DevOps → Repos จะเห็นไฟล์ทั้งหมดขึ้นไปแล้ว</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">6</span> สร้าง Pipeline ใน Azure DevOps</h3>
+      <p>ตอนนี้ code อยู่บน Repos แล้ว ขั้นตอนนี้คือบอก Azure DevOps ว่าให้ใช้ไฟล์ azure-pipelines.yml ที่เราสร้างไว้</p>
+      <pre><code class="language-plaintext">1. ใน Project กดที่ "Pipelines" ในเมนูซ้าย
+2. กด "New Pipeline" ที่มุมขวาบน
+3. เลือก "Azure Repos Git"
+   (เพราะ code เราอยู่ใน Azure Repos)
+4. เลือก Repo ที่เพิ่ง push ขึ้นไป
+5. เลือก "Existing Azure Pipelines YAML file"
+   (เพราะเราสร้างไฟล์ yml ไว้แล้ว)
+6. เลือก Branch: main
+7. เลือก Path: /azure-pipelines.yml
+8. กด "Continue"
+9. จะเห็นไฟล์ yml ที่เราเขียนไว้แสดงขึ้นมา
+10. กด "Run" เพื่อรัน pipeline ครั้งแรก</code></pre>
+      <div class="success">Pipeline ถูกสร้างแล้ว และกำลังรันครั้งแรก!</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">7</span> ดู Pipeline รัน</h3>
+      <p>หลังกด Run จะเห็นหน้า Pipeline รันอยู่ มาดูว่าแต่ละส่วนคืออะไร</p>
+      <pre><code class="language-plaintext">หน้า Pipeline จะแสดง:
+
+Stages:
+  Playwright UI Tests  → กำลังรัน หรือ ผ่าน หรือ fail
+  API Tests            → รอ Stage แรกเสร็จก่อน
+  Robot Framework Tests → รอ Stage สองเสร็จก่อน
+
+วิธีดู log:
+1. คลิกที่ Stage ที่ต้องการดู
+2. คลิกที่ Job
+3. จะเห็น log ทุก step ที่รัน
+4. ถ้า fail จะเห็น error message สีแดง
+
+วิธีดาวน์โหลด Report:
+1. หลัง pipeline รันเสร็จ
+2. กดที่ "Artifacts" ด้านขวาบน
+3. จะเห็น playwright-report และ robot-report
+4. กดดาวน์โหลดได้เลย</code></pre>
+      <div class="success">เสร็จแล้ว! ทุกครั้งที่ push code ขึ้น Azure Repos Pipeline จะรัน test อัตโนมัติทันที ไม่ต้องสั่งเอง</div>
+    </div>
+
+    <hr>
+
+    <h2>ทุกครั้งที่แก้ code หรือเพิ่ม test ใหม่ ทำแค่นี้</h2>
+    <pre><code class="language-bash"># บันทึกการเปลี่ยนแปลง
+git add .
+
+# เขียนอธิบายว่าแก้อะไร
+git commit -m "feat: เพิ่ม test case login"
+
+# ส่งขึ้น Azure Repos
+git push
+
+# Pipeline จะรัน test อัตโนมัติทันที ไม่ต้องทำอะไรเพิ่ม</code></pre>
+
+    <h2>ถ้า Pipeline Fail ต้องทำอะไร?</h2>
+    <table>
+      <tr><th>Error ที่เห็น</th><th>สาเหตุ</th><th>วิธีแก้</th></tr>
+      <tr><td>ModuleNotFoundError: No module named 'xxx'</td><td>ลืมใส่ library ใน requirements.txt</td><td>เพิ่ม library ใน requirements.txt แล้ว push ใหม่</td></tr>
+      <tr><td>playwright: command not found</td><td>ลืมรัน playwright install chromium ใน pipeline</td><td>เพิ่ม playwright install chromium ใน azure-pipelines.yml</td></tr>
+      <tr><td>FAILED tests/test_login.py</td><td>test case fail จริงๆ</td><td>แก้ code หรือแก้ test แล้ว push ใหม่</td></tr>
+      <tr><td>YAML syntax error</td><td>เขียน azure-pipelines.yml ผิด indentation</td><td>เช็ค indentation ใน yml ให้ถูกต้อง (ใช้ space ไม่ใช่ tab)</td></tr>
+    </table>
+
+    <div class="warn">
+      <strong>จำไว้เสมอ:</strong><br>
+      azure-pipelines.yml = สูตรที่บอก Pipeline ว่าให้ทำอะไร<br>
+      Repo = ที่เก็บ code และไฟล์ yml<br>
+      Pipeline = ตัวที่อ่าน yml แล้วทำตาม<br><br>
+      ทั้ง 3 อย่างนี้ต้องมีครบถึงจะทำงานได้
+    </div>
+  </div>
+</div>
+</body>
+</html>

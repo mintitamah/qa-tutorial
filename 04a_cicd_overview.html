@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 4a: ภาพรวม CI/CD และ Pipeline</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .danger { background: #fdedec; border-left: 6px solid #e74c3c; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .step { background: white; border: 1px solid #dce6f0; border-radius: 10px; padding: 18px 22px; margin: 14px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 50%; width: 28px; height: 28px; text-align: center; line-height: 28px; font-weight: bold; margin-right: 10px; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="00_index.html">🏠 หน้าหลัก</a>
+  <a href="04_cicd.html">🚀 บทที่ 4: CI/CD</a>
+  <a href="04b_cicd_stepbystep.html">👣 บทที่ 4b: จับมือทำ</a>
+</nav>
+
+<h1>🚀 บทที่ 4a: ภาพรวม CI/CD และ Pipeline คืออะไร?</h1>
+<p>อ่านบทนี้ก่อน เพื่อให้เข้าใจภาพรวมก่อนลงมือทำ</p>
+
+<hr>
+
+<h2>🏭 เริ่มจากเรื่องง่ายๆ ก่อน — โรงงานผลิตรถยนต์</h2>
+<p>ลองนึกภาพโรงงานผลิตรถยนต์</p>
+
+<pre><code class="language-plaintext">ชิ้นส่วนเข้ามา
+      ↓
+สายพานที่ 1: ประกอบตัวถัง
+      ↓
+สายพานที่ 2: ติดตั้งเครื่องยนต์
+      ↓
+สายพานที่ 3: ตรวจสอบคุณภาพ
+      ↓
+สายพานที่ 4: ทาสี
+      ↓
+รถยนต์สำเร็จรูปออกมา
+</code></pre>
+
+<div class="box">
+  <strong>CI/CD Pipeline ก็เหมือนกันเลย!</strong><br><br>
+  Code เข้ามา (push ขึ้น Azure DevOps)
+  → Pipeline ที่ 1: ติดตั้ง library
+  → Pipeline ที่ 2: รัน test
+  → Pipeline ที่ 3: สรุปผล
+  → Code พร้อม deploy
+</div>
+
+<hr>
+
+<h2>🤔 CI/CD คืออะไรกันแน่?</h2>
+
+<table>
+  <tr><th>คำ</th><th>ย่อมาจาก</th><th>ทำอะไร</th><th>เปรียบเหมือน</th></tr>
+  <tr><td>CI</td><td>Continuous Integration</td><td>รัน test อัตโนมัติทุกครั้งที่ push code</td><td>QC ตรวจสอบชิ้นส่วนทุกชิ้นที่เข้ามา</td></tr>
+  <tr><td>CD</td><td>Continuous Delivery</td><td>ส่ง code ไป deploy อัตโนมัติหลัง test ผ่าน</td><td>ส่งรถที่ผ่าน QC ออกไปขายเลย</td></tr>
+</table>
+
+<div class="warn">
+  <strong>ในฐานะ QA เราสนใจแค่ CI เป็นหลัก</strong><br>
+  คือการรัน test อัตโนมัติทุกครั้งที่มีการ push code ขึ้นมา
+</div>
+
+<hr>
+
+<h2>🔧 Pipeline คืออะไร? เกี่ยวกับ CI/CD ยังไง?</h2>
+
+<div class="box">
+  <strong>Pipeline คือ "สูตรการทำงาน" ที่เราเขียนไว้ล่วงหน้า</strong><br>
+  บอกว่าเมื่อมี code ใหม่เข้ามา ให้ทำอะไรบ้าง เรียงตามลำดับ<br><br>
+  <strong>CI/CD คือแนวคิด</strong><br>
+  <strong>Pipeline คือวิธีที่ทำให้ CI/CD เกิดขึ้นจริง</strong>
+</div>
+
+<pre><code class="language-plaintext">CI/CD = แนวคิดว่า "อยากให้รัน test อัตโนมัติ"
+Pipeline = ไฟล์ที่เขียนว่า "ให้ทำแบบนี้นะ"
+
+เหมือนกับ:
+CI/CD = อยากได้รถยนต์คุณภาพดี (แนวคิด)
+Pipeline = สายพานการผลิตที่ออกแบบไว้ (วิธีทำ)
+</code></pre>
+
+<hr>
+
+<h2>🏗️ Azure DevOps มีอะไรบ้าง?</h2>
+<p>Azure DevOps คือ platform ของ Microsoft ที่รวมทุกอย่างไว้ในที่เดียว</p>
+
+<table>
+  <tr><th>ส่วน</th><th>คืออะไร</th><th>เปรียบเหมือน</th></tr>
+  <tr><td>Repos</td><td>ที่เก็บ code ทั้งหมด</td><td>Google Drive สำหรับ code</td></tr>
+  <tr><td>Pipelines</td><td>รัน test และ deploy อัตโนมัติ</td><td>สายพานโรงงาน</td></tr>
+  <tr><td>Boards</td><td>จัดการงาน task และ bug</td><td>Jira หรือ Trello</td></tr>
+  <tr><td>Artifacts</td><td>เก็บผลลัพธ์ เช่น report</td><td>ที่เก็บของที่ผลิตได้</td></tr>
+  <tr><td>Test Plans</td><td>จัดการ test case</td><td>สมุดบันทึก test case</td></tr>
+</table>
+
+<pre><code class="language-plaintext">Azure DevOps
+│
+├── Repos       ← เก็บ code ของเรา (script test ทั้งหมด)
+│
+├── Pipelines   ← อ่านไฟล์ azure-pipelines.yml แล้วรันตาม
+│
+└── Artifacts   ← เก็บ report ที่ได้หลัง test รันเสร็จ
+</code></pre>
+
+<hr>
+
+<h2>🔗 CI/CD กับ Pipeline เกี่ยวกันยังไง?</h2>
+<p>นี่คือภาพรวมที่ต้องเข้าใจก่อนเลย</p>
+
+<pre><code class="language-plaintext">
+  เราเขียน test script          Azure DevOps
+  ─────────────────             ─────────────────────────────────
+                                │
+  test_login.py    ──push──►   Repos (เก็บ code)
+  login.robot                   │
+  azure-pipelines.yml           │ Pipeline อ่านไฟล์ .yml
+                                ▼
+                                Pipeline รันอัตโนมัติ:
+                                  1. ติดตั้ง Python
+                                  2. ติดตั้ง library
+                                  3. รัน pytest
+                                  4. รัน robot
+                                │
+                                ▼
+                                ผลลัพธ์:
+                                  ✅ PASSED → merge ได้
+                                  ❌ FAILED → แจ้งเตือน ต้องแก้
+                                │
+                                ▼
+                                Artifacts (เก็บ report.html)
+</code></pre>
+
+<hr>
+
+<h2>📄 azure-pipelines.yml คืออะไร? ทำไมต้องมี?</h2>
+
+<div class="box">
+  <strong>azure-pipelines.yml คือไฟล์ที่บอก Azure DevOps ว่า:</strong><br>
+  1. รัน pipeline เมื่อไหร่? (เช่น ทุกครั้งที่ push ขึ้น branch main)<br>
+  2. รันบนเครื่องอะไร? (เช่น Linux, Windows)<br>
+  3. ทำอะไรบ้าง? (เช่น ติดตั้ง Python → รัน test → เก็บ report)<br><br>
+  ไฟล์นี้ต้องอยู่ใน Repo เดียวกับ code ของเรา
+</div>
+
+<pre><code class="language-yaml"># azure-pipelines.yml — อ่านทีละบรรทัด
+
+# trigger = รัน pipeline เมื่อไหร่
+trigger:
+  branches:
+    include:
+      - main      # ทุกครั้งที่ push ขึ้น branch main
+
+# pool = รันบนเครื่องอะไร
+pool:
+  vmImage: ubuntu-latest   # เครื่อง Linux ที่ Azure เตรียมให้ฟรี
+
+# steps = ทำอะไรบ้าง เรียงตามลำดับ
+steps:
+
+# ขั้นตอนที่ 1: ติดตั้ง Python
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+  displayName: 'ติดตั้ง Python 3.11'
+
+# ขั้นตอนที่ 2: ติดตั้ง library
+- script: |
+    pip install -r requirements.txt
+    playwright install chromium
+  displayName: 'ติดตั้ง library'
+
+# ขั้นตอนที่ 3: รัน test
+- script: pytest tests/ -v
+  displayName: 'รัน Playwright tests'
+</code></pre>
+
+<hr>
+
+<h2>📦 Repo คืออะไร? ทำไมต้องเซต?</h2>
+
+<table>
+  <tr><th>คำศัพท์</th><th>ความหมาย</th><th>เปรียบเหมือน</th></tr>
+  <tr><td>Repository (Repo)</td><td>ที่เก็บ code ทั้งหมดบน cloud</td><td>Google Drive สำหรับ code</td></tr>
+  <tr><td>Branch</td><td>สาขาของ code</td><td>สำเนาของ code ที่แยกออกมา</td></tr>
+  <tr><td>Commit</td><td>บันทึก snapshot ของ code</td><td>กด Save พร้อมเขียนว่าแก้อะไร</td></tr>
+  <tr><td>Push</td><td>ส่ง code จากเครื่องเราขึ้น Repo</td><td>อัปโหลดขึ้น cloud</td></tr>
+  <tr><td>Pull Request (PR)</td><td>ขอ merge code จาก branch นึงไปอีก branch</td><td>ส่งงานให้หัวหน้าตรวจก่อน merge</td></tr>
+</table>
+
+<div class="warn">
+  <strong>ทำไมต้องเซต Repo?</strong><br>
+  เพราะ Pipeline ต้องรู้ว่า code อยู่ที่ไหน ถึงจะไปดึง code มารัน test ได้<br>
+  ถ้าไม่มี Repo → Pipeline ไม่รู้จะเอา code มาจากไหน → รัน test ไม่ได้
+</div>
+
+<hr>
+
+<h2>🔄 Flow การทำงานจริงในทีม</h2>
+
+<pre><code class="language-plaintext">QA เขียน test script บนเครื่องตัวเอง
+        ↓
+git add . → git commit → git push
+(ส่ง code ขึ้น Azure Repos)
+        ↓
+Azure Pipelines เห็นว่ามี code ใหม่
+(เพราะ trigger ตั้งไว้ว่าให้รันทุกครั้งที่ push)
+        ↓
+Pipeline เปิดเครื่อง Linux เสมือนขึ้นมา
+ติดตั้ง Python และ library เอง
+รัน test ทั้งหมดเอง
+        ↓
+ถ้า test ผ่านหมด ✅
+→ แจ้งว่าโอเค
+→ merge code ได้
+
+ถ้า test fail ❌
+→ แจ้งเตือนทันที
+→ ต้องแก้ code แล้ว push ใหม่
+        ↓
+ดู report ได้จาก Artifacts
+</code></pre>
+
+<hr>
+
+<h2>❓ คำถามสัมภาษณ์ที่ควรรู้</h2>
+
+<h3>ระดับเริ่มต้น</h3>
+<div class="box">
+  <strong>Q: CI/CD คืออะไร?</strong><br>
+  A: แนวคิดที่ทำให้การรัน test และ deploy เป็นอัตโนมัติ ทุกครั้งที่มีการ push code ไม่ต้องสั่งเอง<br><br>
+
+  <strong>Q: Pipeline คืออะไร?</strong><br>
+  A: ไฟล์ที่เขียนสูตรการทำงานไว้ล่วงหน้า บอกว่าเมื่อมี code ใหม่เข้ามาให้ทำอะไรบ้าง เรียงตามลำดับ<br><br>
+
+  <strong>Q: CI/CD กับ Pipeline เกี่ยวกันยังไง?</strong><br>
+  A: CI/CD คือแนวคิด Pipeline คือวิธีที่ทำให้แนวคิดนั้นเกิดขึ้นจริง เหมือน CI/CD คือความต้องการ Pipeline คือการลงมือทำ<br><br>
+
+  <strong>Q: azure-pipelines.yml คืออะไร?</strong><br>
+  A: ไฟล์ที่บอก Azure DevOps ว่าให้รัน pipeline เมื่อไหร่ บนเครื่องอะไร และทำอะไรบ้าง
+</div>
+
+<h3>ระดับกลาง</h3>
+<div class="box">
+  <strong>Q: trigger ใน pipeline คืออะไร?</strong><br>
+  A: บอกว่าให้รัน pipeline เมื่อไหร่ เช่น ทุกครั้งที่ push ขึ้น branch main หรือเมื่อมี Pull Request<br><br>
+
+  <strong>Q: ทำไมต้องมี Repo ก่อนถึงจะตั้ง Pipeline ได้?</strong><br>
+  A: เพราะ Pipeline ต้องดึง code จาก Repo มารัน ถ้าไม่มี Repo Pipeline ไม่รู้จะเอา code มาจากไหน<br><br>
+
+  <strong>Q: ถ้า test fail ใน pipeline ต้องทำอะไร?</strong><br>
+  A: ดู error log ใน pipeline แก้ code แล้ว push ขึ้นใหม่ pipeline จะรันอีกครั้งอัตโนมัติ<br><br>
+
+  <strong>Q: Artifact ใน pipeline คืออะไร?</strong><br>
+  A: ผลลัพธ์ที่ได้จาก pipeline เช่น test report ที่ดาวน์โหลดมาดูได้หลัง pipeline รันเสร็จ
+</div>
+
+<hr>
+
+<h2>📋 สรุปภาพรวม</h2>
+<pre><code class="language-plaintext">CI/CD = แนวคิด "รัน test อัตโนมัติทุกครั้งที่ push code"
+        ↓
+Pipeline = วิธีทำให้เกิดขึ้นจริง โดยเขียนใน azure-pipelines.yml
+        ↓
+Repo = ที่เก็บ code และไฟล์ azure-pipelines.yml
+        ↓
+Azure DevOps = platform ที่รวม Repo + Pipeline ไว้ด้วยกัน
+</code></pre>
+
+<div class="success">
+  อ่านบทนี้จบแล้ว ไปอ่าน <a href="04b_cicd_stepbystep.html"><strong>บทที่ 4b: จับมือทำทีละขั้นตอน</strong></a> ต่อได้เลย!
+</div>
+
+</body>
+</html>

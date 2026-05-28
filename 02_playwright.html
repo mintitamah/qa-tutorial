@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 2: Playwright</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .danger { background: #fdedec; border-left: 6px solid #e74c3c; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .step { background: white; border: 1px solid #dce6f0; border-radius: 10px; padding: 18px 22px; margin: 14px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 20px; padding: 2px 12px; font-size: 13px; font-weight: bold; margin-right: 8px; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="00_index.html">🏠 หน้าหลัก</a>
+  <a href="01_api_automation.html">📡 บทที่ 1: API</a>
+  <a href="02_playwright.html">🎭 บทที่ 2: Playwright</a>
+  <a href="03_robot_framework.html">🤖 บทที่ 3: Robot</a>
+  <a href="04_cicd.html">🚀 บทที่ 4: CI/CD</a>
+  <a href="05_interview_guide.html">🎯 บทที่ 5: สัมภาษณ์</a>
+</nav>
+
+<h1>🎭 บทที่ 2: Playwright (UI Automation)</h1>
+<p>บทนี้จะสอนการใช้ Playwright ควบคุม browser อัตโนมัติ ตั้งแต่แนวคิดจนถึงเขียน test จริง</p>
+
+<hr>
+
+
+<h2>🤖 Playwright คืออะไร? มันคือ Tool ตัวไหน?</h2>
+<p>Playwright คือ <strong>library/tool</strong> ที่ Microsoft สร้างขึ้นมาเพื่อทำ automation โดยเฉพาะ ใช้ได้ทั้ง UI (ควบคุม browser) และ API (ยิง HTTP request)</p>
+
+<table>
+  <tr><th>ส่วนประกอบ</th><th>คืออะไร</th><th>เปรียบเหมือน</th></tr>
+  <tr><td>VS Code</td><td>โปรแกรมที่ใช้เขียน code</td><td>โรงงาน (ที่ทำงาน)</td></tr>
+  <tr><td>Python</td><td>ภาษาที่ใช้เขียน script</td><td>ภาษาที่ใช้สั่งงาน</td></tr>
+  <tr><td>Playwright</td><td>tool ที่ใช้ทำ automation</td><td>เครื่องจักรในโรงงาน</td></tr>
+  <tr><td>pytest</td><td>ตัวรัน test และสรุปผล pass/fail</td><td>ผู้จัดการที่คอยสรุปผล</td></tr>
+</table>
+
+<div class="box">
+  <strong>ทั้ง 4 อย่างนี้ต้องใช้ร่วมกันเสมอ</strong> ขาดอันใดอันนึงไม่ได้<br><br>
+  VS Code → เปิดขึ้นมาเพื่อเขียน code<br>
+  Python → ภาษาที่เราเขียน<br>
+  Playwright → library ที่ import มาใช้ใน code<br>
+  pytest → คำสั่งที่ใช้รัน test ใน Terminal
+</div>
+
+<hr>
+
+<h2>🆚 Playwright ทำ UI กับ API ต่างกันยังไง?</h2>
+
+<table>
+  <tr><th></th><th>UI Automation</th><th>API Automation</th></tr>
+  <tr><td>ทำอะไร</td><td>ควบคุม browser กดปุ่ม กรอกฟอร์ม</td><td>ยิง HTTP request โดยตรง ไม่เปิด browser</td></tr>
+  <tr><td>ใช้เมื่อ</td><td>ทดสอบหน้าเว็บที่ user เห็น</td><td>ทดสอบ API endpoint</td></tr>
+  <tr><td>คำสั่งหลัก</td><td>page.goto(), page.click(), page.fill()</td><td>page.request.get(), page.request.post()</td></tr>
+  <tr><td>เร็วแค่ไหน</td><td>ช้ากว่า เพราะต้องเปิด browser</td><td>เร็วกว่า ไม่ต้องเปิด browser</td></tr>
+</table>
+
+<hr>
+
+<h2>📦 Playwright มี Package เหมือน Robot มี Library มั้ย?</h2>
+<p>มี! แต่เรียกว่า <strong>Package</strong> แทน แนวคิดเหมือนกันคือ import มาใช้ก่อนเสมอ</p>
+
+<table>
+  <tr><th>Robot Framework</th><th>Playwright (Python)</th><th>ใช้ทำอะไร</th></tr>
+  <tr><td>Library Browser</td><td>from playwright.sync_api import Page, expect</td><td>ควบคุม browser</td></tr>
+  <tr><td>Library Requests</td><td>import requests</td><td>ยิง API</td></tr>
+  <tr><td>BuiltIn Library</td><td>import pytest</td><td>รัน test สรุปผล</td></tr>
+</table>
+
+<pre><code class="language-python"># ทุกไฟล์ test ของ Playwright ต้อง import สิ่งเหล่านี้ก่อนเสมอ
+
+from playwright.sync_api import Page, expect
+# Page   = type ของ browser page ที่ Playwright สร้างให้
+# expect = ตัวช่วยเช็คผล เช่น expect(element).to_be_visible()
+
+import pytest
+# pytest = ตัวรัน test ทั้งหมด
+</code></pre>
+
+<hr>
+
+<h2>⌨️ คำสั่งเฉพาะของ Playwright ที่ต้องรู้</h2>
+<p>Playwright มีคำสั่งของตัวเองแบ่งเป็น 3 กลุ่มหลัก</p>
+
+<h3>กลุ่มที่ 1: Navigation — เปิดเว็บ ไปหน้าไหน</h3>
+<pre><code class="language-python">page.goto("https://www.saucedemo.com")  # เปิด URL
+page.go_back()                           # กดปุ่ม back
+page.go_forward()                        # กดปุ่ม forward
+page.reload()                            # refresh หน้า
+</code></pre>
+
+<h3>กลุ่มที่ 2: Action — ทำอะไรบนหน้าเว็บ</h3>
+<pre><code class="language-python">page.click("#login-button")              # กดปุ่ม
+page.fill("#user-name", "standard_user") # กรอกข้อความ
+page.select_option("#dropdown", "value") # เลือก dropdown
+page.check("#checkbox")                  # ติ๊ก checkbox
+page.uncheck("#checkbox")                # เอาติ๊กออก
+page.screenshot(path="screenshot.png")  # ถ่ายรูปหน้าจอ
+page.hover("#menu")                      # เอาเมาส์ชี้ที่ element
+</code></pre>
+
+<h3>กลุ่มที่ 3: Assertion — เช็คผลว่าถูกต้องมั้ย</h3>
+<pre><code class="language-python">expect(element).to_be_visible()          # เช็คว่า element แสดงอยู่มั้ย
+expect(element).to_be_hidden()           # เช็คว่า element ซ่อนอยู่มั้ย
+expect(element).to_be_enabled()          # เช็คว่าปุ่มกดได้มั้ย
+expect(element).to_contain_text("Login") # เช็คว่ามีข้อความนี้มั้ย
+expect(page).to_have_url("https://...")  # เช็คว่า URL ถูกต้องมั้ย
+expect(page).to_have_title("หน้าหลัก")  # เช็คว่า title ถูกต้องมั้ย
+</code></pre>
+
+<div class="box">
+  <strong>จำง่ายๆ:</strong><br>
+  Navigation = ไปไหน<br>
+  Action = ทำอะไร<br>
+  Assertion = เช็คว่าผลถูกมั้ย
+</div>
+
+<hr>
+
+<h2>🏗️ โครงสร้างของ Playwright ต่างจาก Robot ยังไง?</h2>
+
+<table>
+  <tr><th>Robot Framework</th><th>Playwright</th></tr>
+  <tr><td>ทุกอย่างอยู่ในไฟล์เดียว</td><td>แยกออกเป็นหลายไฟล์</td></tr>
+  <tr><td>แบ่งเป็น 4 ส่วนในไฟล์เดียว</td><td>แต่ละไฟล์มีหน้าที่ของตัวเอง</td></tr>
+  <tr><td>login.robot มีทุกอย่าง</td><td>pages/ และ tests/ แยกกัน</td></tr>
+</table>
+
+<pre><code class="language-plaintext">Robot Framework — ทุกอย่างในไฟล์เดียว
+─────────────────────────────────────
+login.robot
+├── *** Settings ***    ← import library
+├── *** Variables ***   ← ตัวแปร
+├── *** Test Cases ***  ← test จริงๆ
+└── *** Keywords ***    ← keyword ที่สร้างเอง
+
+
+Playwright — แยกออกเป็นหลายไฟล์
+─────────────────────────────────
+โปรเจกต์/
+├── pages/
+│   └── login_page.py   ← ไฟล์ที่ 1: แผนที่หน้าเว็บ (locator อยู่ที่นี่)
+└── tests/
+    └── test_login.py   ← ไฟล์ที่ 2: test case จริงๆ
+</code></pre>
+
+<div class="warn">
+  <strong>ทำไม Playwright ถึงแยกไฟล์?</strong><br>
+  เพราะถ้า developer เปลี่ยน id ของ element บนหน้าเว็บ เราแก้แค่ไฟล์ pages/ ที่เดียว ไม่ต้องไปแก้ทุก test case
+</div>
+
+<hr>
+
+<h2>🚀 เริ่มต้น Step 0 ถึงจบ — UI Automation</h2>
+
+<div class="step">
+  <span class="badge">0</span> <strong>ติดตั้ง VS Code</strong> — โหลดที่ <a href="https://code.visualstudio.com" target="_blank">code.visualstudio.com</a>
+</div>
+
+<div class="step">
+  <span class="badge">1</span> <strong>ติดตั้ง Python และ library</strong>
+  <pre><code class="language-bash">python3 -m venv venv                  # สร้าง virtual environment
+source venv/bin/activate              # เปิดใช้งาน (Mac)
+pip install pytest playwright pytest-playwright
+playwright install chromium           # ติดตั้ง browser
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">2</span> <strong>สร้างโครงสร้างโฟลเดอร์</strong>
+  <pre><code class="language-bash">mkdir pages tests
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">3</span> <strong>เปิดเว็บที่จะทดสอบ → คลิกขวา Inspect → หา id ของ element</strong>
+  <pre><code class="language-plaintext">เปิด https://www.saucedemo.com
+คลิกขวาที่ช่อง username → Inspect
+ดู HTML → id="user-name"
+คลิกขวาที่ช่อง password → Inspect
+ดู HTML → id="password"
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">4</span> <strong>สร้าง pages/login_page.py (แผนที่หน้าเว็บ)</strong>
+  <pre><code class="language-python">class LoginPage:
+    def __init__(self, page):
+        self.page = page
+        self.username_input = page.locator("#user-name")   # id ที่หาได้จาก Inspect
+        self.password_input = page.locator("#password")
+        self.login_button   = page.locator("#login-button")
+        self.error_message  = page.locator("[data-test='error']")
+
+    def goto(self):
+        self.page.goto("https://www.saucedemo.com")
+
+    def login(self, username, password):
+        self.username_input.fill(username)
+        self.password_input.fill(password)
+        self.login_button.click()
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">5</span> <strong>สร้าง tests/test_login.py (test case)</strong>
+  <pre><code class="language-python">from playwright.sync_api import Page, expect   # import Playwright
+from pages.login_page import LoginPage          # import แผนที่ที่สร้างไว้
+
+def test_login_success(page: Page):
+    login = LoginPage(page)   # สร้าง object จากแผนที่
+    login.goto()              # เปิดหน้าเว็บ
+    login.login("standard_user", "secret_sauce")  # กรอกข้อมูลแล้วกด login
+    expect(page).to_have_url("https://www.saucedemo.com/inventory.html")  # เช็คผล
+
+def test_login_wrong_password(page: Page):
+    login = LoginPage(page)
+    login.goto()
+    login.login("standard_user", "wrongpass")
+    expect(login.error_message).to_be_visible()
+    expect(login.error_message).to_contain_text("Username and password do not match")
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">6</span> <strong>รัน test ใน Terminal</strong>
+  <pre><code class="language-bash">pytest tests/ --headed -v    # --headed = เปิด browser ให้เห็น
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">7</span> <strong>Push ขึ้น CI/CD</strong>
+  <pre><code class="language-bash">git add .
+git commit -m "feat: add login UI tests"
+git push
+# GitHub Actions จะรัน pytest อัตโนมัติทันที
+</code></pre>
+</div>
+
+<hr>
+
+<h2>🚀 เริ่มต้น Step 0 ถึงจบ — API Automation ด้วย Playwright</h2>
+<p>Playwright ทำ API test ได้ด้วย โดยใช้ <code class="inline">page.request</code> แทนการเปิด browser</p>
+
+<div class="step">
+  <span class="badge">1</span> <strong>สร้างไฟล์ tests/test_api.py</strong>
+  <pre><code class="language-python">from playwright.sync_api import Playwright   # import Playwright
+
+def test_get_user(playwright: Playwright):
+    # สร้าง API request context — ไม่เปิด browser เลย
+    api = playwright.request.new_context(base_url="https://jsonplaceholder.typicode.com")
+
+    # ส่ง GET request
+    response = api.get("/users/1")
+
+    # เช็คผล
+    assert response.status == 200
+    body = response.json()
+    assert "name" in body
+    assert "email" in body
+
+def test_create_post(playwright: Playwright):
+    api = playwright.request.new_context(base_url="https://jsonplaceholder.typicode.com")
+
+    # ส่ง POST request พร้อมข้อมูล
+    response = api.post("/posts", data={
+        "title": "test",
+        "body": "hello",
+        "userId": 1
+    })
+
+    assert response.status == 201
+</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">2</span> <strong>รัน test</strong>
+  <pre><code class="language-bash">pytest tests/test_api.py -v
+</code></pre>
+</div>
+
+<div class="success">
+  <strong>✅ ข้อดีของการใช้ Playwright ทำ API test:</strong><br>
+  ใช้ tool เดียวกันกับ UI test ไม่ต้องเรียนรู้ tool ใหม่<br>
+  สามารถผสม UI + API test ในโปรเจกต์เดียวกันได้เลย
+</div>
+
+<hr>
+<h2>🤖 Playwright คืออะไร?</h2>
+<p>Playwright คือ "หุ่นยนต์" ที่เราส่งเข้าไปในเว็บแทนเรา ทุกอย่างที่คนทำได้ มันทำได้หมด</p>
+
+<table>
+  <tr><th>สิ่งที่คนทำได้</th><th>Playwright ทำได้เหมือนกัน</th></tr>
+  <tr><td>เปิด browser แล้วไปที่ URL</td><td><code>page.goto("https://...")</code></td></tr>
+  <tr><td>กรอกข้อความในช่อง input</td><td><code>page.fill("#username", "myuser")</code></td></tr>
+  <tr><td>กดปุ่ม</td><td><code>page.click("#login-button")</code></td></tr>
+  <tr><td>ดูว่ามี element แสดงอยู่มั้ย</td><td><code>expect(element).to_be_visible()</code></td></tr>
+  <tr><td>เช็คว่า URL เปลี่ยนมั้ย</td><td><code>expect(page).to_have_url("...")</code></td></tr>
+  <tr><td>ถ่าย screenshot</td><td><code>page.screenshot(path="shot.png")</code></td></tr>
+</table>
+
+<div class="box">
+  <strong>ทำไม Playwright ดีกว่า Selenium?</strong><br>
+  ✅ Auto-wait — รอ element พร้อมเองโดยอัตโนมัติ ไม่ต้องเขียน time.sleep()<br>
+  ✅ เร็วกว่ามาก<br>
+  ✅ รองรับ Chromium, Firefox, WebKit ในตัว<br>
+  ✅ มี Trace Viewer ดู step-by-step ว่า test fail ตรงไหน
+</div>
+
+<hr>
+
+<h2>🌐 เว็บที่จะใช้ฝึก</h2>
+<div class="box">
+  เราจะใช้ <strong><a href="https://www.saucedemo.com" target="_blank">https://www.saucedemo.com</a></strong><br>
+  เว็บนี้ทีม Sauce Labs สร้างมาเพื่อให้ QA ฝึกโดยเฉพาะ<br><br>
+  username: <code class="inline">standard_user</code><br>
+  password: <code class="inline">secret_sauce</code>
+</div>
+
+<hr>
+
+<h2>🗺️ Page Object Model คืออะไร?</h2>
+
+<h3>ปัญหาถ้าไม่ใช้ Page Object Model</h3>
+<pre><code class="language-python"># ❌ แบบไม่ดี — เขียน locator ซ้ำทุก test
+def test_login_success(page):
+    page.goto("https://www.saucedemo.com")
+    page.fill("#user-name", "standard_user")   # ← ซ้ำ!
+    page.fill("#password", "secret_sauce")      # ← ซ้ำ!
+    page.click("#login-button")                 # ← ซ้ำ!
+
+def test_login_fail(page):
+    page.goto("https://www.saucedemo.com")
+    page.fill("#user-name", "standard_user")   # ← ซ้ำ!
+    page.fill("#password", "wrongpass")         # ← ซ้ำ!
+    page.click("#login-button")                 # ← ซ้ำ!
+
+# ถ้า developer เปลี่ยน id="user-name" เป็น id="username"
+# ต้องแก้ทุก test! ถ้ามี 50 test ก็ต้องแก้ 50 ที่
+</code></pre>
+
+<h3>วิธีแก้ด้วย Page Object Model</h3>
+<pre><code class="language-plaintext">login_page.py (แผนที่)              test_login.py (test cases)
+──────────────────────              ──────────────────────────
+id="user-name" อยู่นี่         ←─   test_login_success ใช้แผนที่นี้
+id="password" อยู่นี่          ←─   test_login_fail ใช้แผนที่นี้
+id="login-button" อยู่นี่      ←─   test_login_empty ใช้แผนที่นี้
+
+แก้ที่เดียว → ทุก test ได้รับผลทันที ✅
+</code></pre>
+
+<hr>
+
+<h2>⚙️ ติดตั้งก่อนเลย</h2>
+<pre><code class="language-bash"># ติดตั้ง library ที่ต้องใช้
+pip install pytest playwright pytest-playwright
+
+# ติดตั้ง browser จริงๆ ที่ Playwright จะใช้ควบคุม
+playwright install chromium
+
+# สร้างโฟลเดอร์
+mkdir pages tests
+</code></pre>
+
+<hr>
+
+<h2>📁 โครงสร้างไฟล์</h2>
+<pre><code class="language-plaintext">qa-automation-demo/
+│
+├── pages/
+│   └── login_page.py     ← แผนที่ของหน้า login (locator ทั้งหมดอยู่ที่นี่)
+│
+└── tests/
+    └── test_login.py     ← test case จริงๆ
+</code></pre>
+
+<hr>
+
+<h2>📄 สร้างไฟล์ pages/login_page.py</h2>
+<p>ไฟล์นี้คือ "แผนที่" ของหน้า login บอกว่า element ต่างๆ อยู่ที่ไหน และทำอะไรได้บ้าง</p>
+
+<pre><code class="language-python"># ============================================================
+# pages/login_page.py
+# ไฟล์นี้ทำหน้าที่เดียวคือ บอกว่าหน้า login มีอะไรอยู่ที่ไหน
+# ============================================================
+
+class LoginPage:
+
+    # __init__ คือ constructor = รันทันทีตอนสร้าง LoginPage ขึ้นมา
+    # self = ตัวแทนของ object นี้เอง (เหมือน "ตัวเอง" ในภาษาไทย)
+    # page = browser page ที่ Playwright ส่งมาให้
+    def __init__(self, page):
+        self.page = page
+
+        # locator = วิธีบอก Playwright ว่า element อยู่ที่ไหนบนหน้าเว็บ
+        # "#user-name" = หา element ที่มี id="user-name"
+        # วิธีหา id: เปิดเว็บ → คลิกขวา → Inspect → ดู HTML
+        self.username_input = page.locator("#user-name")
+
+        # "#password" = หา element ที่มี id="password"
+        self.password_input = page.locator("#password")
+
+        # "#login-button" = หาปุ่ม login
+        self.login_button = page.locator("#login-button")
+
+        # "[data-test='error']" = หากล่องข้อความ error
+        # ที่จะโชว์ตอน login ผิด
+        self.error_message = page.locator("[data-test='error']")
+
+    # method สำหรับเปิดหน้าเว็บ
+    def goto(self):
+        # สั่งให้ browser เปิด URL นี้
+        self.page.goto("https://www.saucedemo.com")
+
+    # method สำหรับกรอก username, password แล้วกด login
+    # รับค่า username และ password มาเป็น parameter
+    def login(self, username, password):
+        # fill = กรอกข้อความลงใน input field
+        self.username_input.fill(username)
+        self.password_input.fill(password)
+
+        # click = กดปุ่ม
+        self.login_button.click()
+</code></pre>
+
+<hr>
+
+<h2>📄 สร้างไฟล์ tests/test_login.py</h2>
+<p>ไฟล์นี้คือ test case จริงๆ บอกว่าจะทดสอบอะไร และคาดหวังผลอะไร</p>
+
+<pre><code class="language-python"># ============================================================
+# tests/test_login.py
+# ============================================================
+
+# ===== Import library =====
+import pytest
+
+# Page = type ของ browser page จาก Playwright
+# expect = ตัวช่วยเช็คผลแบบ Playwright
+from playwright.sync_api import Page, expect
+
+# นำ LoginPage ที่เราสร้างไว้มาใช้
+from pages.login_page import LoginPage
+
+
+# ============================================================
+# Test Cases
+# ทุก function ที่ขึ้นต้นด้วย test_ จะถูก pytest รันเป็น test case
+# page: Page = Playwright จะสร้าง browser page ให้อัตโนมัติ
+# ============================================================
+
+
+# ----------------------------------------------------------
+# Test 1: login ด้วยข้อมูลถูกต้อง → ต้องเข้าหน้า inventory ได้
+# ----------------------------------------------------------
+def test_login_success(page: Page):
+    # สร้าง LoginPage object โดยส่ง page เข้าไป
+    login = LoginPage(page)
+
+    # เปิดหน้าเว็บ
+    login.goto()
+
+    # กรอก username/password ที่ถูกต้อง แล้วกด login
+    login.login("standard_user", "secret_sauce")
+
+    # expect = เช็คว่าผลเป็นไปตามที่คาดมั้ย
+    # to_have_url = URL ต้องเปลี่ยนไปเป็นหน้า inventory
+    # ถ้าไม่ตรง → test fail ทันที พร้อมแสดง error message
+    expect(page).to_have_url("https://www.saucedemo.com/inventory.html")
+
+
+# ----------------------------------------------------------
+# Test 2: login ด้วย password ผิด → ต้องเห็น error message
+# ----------------------------------------------------------
+def test_login_wrong_password(page: Page):
+    login = LoginPage(page)
+    login.goto()
+
+    # ใส่ password ผิดตั้งใจ เพื่อทดสอบว่า error แสดงถูกมั้ย
+    login.login("standard_user", "wrong_password")
+
+    # to_be_visible = เช็คว่า element แสดงอยู่บนหน้าจอมั้ย
+    expect(login.error_message).to_be_visible()
+
+    # to_contain_text = เช็คว่ามีข้อความนี้อยู่มั้ย
+    expect(login.error_message).to_contain_text("Username and password do not match")
+
+
+# ----------------------------------------------------------
+# Test 3: login โดยไม่กรอก username → ต้องเห็น error
+# ----------------------------------------------------------
+def test_login_empty_username(page: Page):
+    login = LoginPage(page)
+    login.goto()
+
+    # ส่ง username เป็นค่าว่าง "" เพื่อทดสอบ validation
+    login.login("", "secret_sauce")
+
+    expect(login.error_message).to_contain_text("Username is required")
+
+
+# ----------------------------------------------------------
+# Test 4: login โดยไม่กรอก password → ต้องเห็น error
+# ----------------------------------------------------------
+def test_login_empty_password(page: Page):
+    login = LoginPage(page)
+    login.goto()
+
+    # ส่ง password เป็นค่าว่าง ""
+    login.login("standard_user", "")
+
+    expect(login.error_message).to_contain_text("Password is required")
+
+
+# ----------------------------------------------------------
+# Test 5: login ด้วย account ที่ถูก lock → ต้องเห็น error
+# ----------------------------------------------------------
+def test_login_locked_user(page: Page):
+    login = LoginPage(page)
+    login.goto()
+
+    # "locked_out_user" คือ account ที่ถูก lock ใน saucedemo
+    login.login("locked_out_user", "secret_sauce")
+
+    expect(login.error_message).to_contain_text("Sorry, this user has been locked out")
+</code></pre>
+
+<hr>
+
+<h2>▶️ รัน Test</h2>
+<pre><code class="language-bash"># --headed = เปิด browser ให้เห็นว่ามันทำอะไรอยู่ แนะนำตอนเรียนรู้
+# -v = verbose = แสดงชื่อ test case แต่ละอันว่า pass/fail
+pytest tests/ --headed -v
+
+# รันแบบ headless (ไม่เปิด browser จริง เร็วกว่า ใช้ใน CI/CD)
+pytest tests/ -v
+
+# รันแล้วได้ HTML report
+pytest tests/ -v --html=report.html
+</code></pre>
+
+<div class="success">
+  <strong>✅ ผลที่ควรได้:</strong>
+  <pre style="background:transparent; padding:0; margin:10px 0 0 0; color:#1a5e2a;">
+tests/test_login.py::test_login_success          PASSED
+tests/test_login.py::test_login_wrong_password   PASSED
+tests/test_login.py::test_login_empty_username   PASSED
+tests/test_login.py::test_login_empty_password   PASSED
+tests/test_login.py::test_login_locked_user      PASSED
+
+5 passed in 8.21s</pre>
+</div>
+
+<hr>
+
+<h2>🔍 Locator คืออะไร? หาได้ยังไง?</h2>
+<p>Locator คือวิธีบอก Playwright ว่า element อยู่ที่ไหนบนหน้าเว็บ</p>
+
+<div class="box">
+  <strong>วิธีหา Locator บน Chrome:</strong><br>
+  1. เปิดเว็บที่ต้องการ<br>
+  2. คลิกขวาที่ element ที่ต้องการ<br>
+  3. เลือก "Inspect"<br>
+  4. ดู HTML แล้วหา id หรือ class ของ element นั้น
+</div>
+
+<table>
+  <tr><th>รูปแบบ Locator</th><th>ใช้เมื่อ</th><th>ตัวอย่าง</th></tr>
+  <tr><td><code class="inline">#user-name</code></td><td>หาด้วย id</td><td>element มี id="user-name"</td></tr>
+  <tr><td><code class="inline">.error-message</code></td><td>หาด้วย class</td><td>element มี class="error-message"</td></tr>
+  <tr><td><code class="inline">button[type='submit']</code></td><td>หาด้วย attribute</td><td>ปุ่ม submit</td></tr>
+  <tr><td><code class="inline">text=Login</code></td><td>หาด้วยข้อความ</td><td>element ที่มีคำว่า Login</td></tr>
+  <tr><td><code class="inline">[data-test='error']</code></td><td>หาด้วย data attribute</td><td>element ที่มี data-test="error"</td></tr>
+</table>
+
+<hr>
+
+<h2>❓ คำถามสัมภาษณ์ที่ควรรู้</h2>
+<div class="box">
+  <strong>Q: Page Object Model คืออะไร?</strong><br>
+  A: Pattern แยก locator/action ออกเป็น class แยก ทำให้ maintain ง่าย แก้ที่เดียวทุก test ได้รับผล<br><br>
+
+  <strong>Q: Locator คืออะไร?</strong><br>
+  A: วิธีบอก Playwright ว่า element อยู่ที่ไหนบนหน้าเว็บ เช่น #user-name, .error-message<br><br>
+
+  <strong>Q: Playwright ต่างจาก Selenium ยังไง?</strong><br>
+  A: Auto-wait (รอ element พร้อมเอง), เร็วกว่า, API ใช้งานง่ายกว่า, มี Trace Viewer<br><br>
+
+  <strong>Q: --headed กับ headless ต่างกันยังไง?</strong><br>
+  A: headed = เปิด browser จริงให้เห็น, headless = ไม่เปิด browser เร็วกว่า ใช้ใน CI/CD
+</div>
+
+<hr>
+
+<h2>📋 สรุปบทที่ 2</h2>
+<pre><code class="language-plaintext">หน้าเว็บ
+    ↓
+เปิด Chrome Inspect ดู element id/class
+    ↓
+สร้าง Page Object (แผนที่) ใน pages/login_page.py
+    ↓
+เขียน Test Case ใน tests/test_login.py
+    ↓
+รัน pytest --headed ดูผล pass/fail
+</code></pre>
+
+</body>
+</html>

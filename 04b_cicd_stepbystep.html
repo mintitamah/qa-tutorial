@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 4b: จับมือทำ CI/CD บน Azure DevOps</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .danger { background: #fdedec; border-left: 6px solid #e74c3c; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .step { background: white; border: 1px solid #dce6f0; border-radius: 10px; padding: 20px 24px; margin: 16px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .step h3 { margin-top: 0; color: #2c3e50; }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 50%; width: 32px; height: 32px; text-align: center; line-height: 32px; font-weight: bold; margin-right: 10px; font-size: 16px; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="00_index.html">🏠 หน้าหลัก</a>
+  <a href="04a_cicd_overview.html">📖 บทที่ 4a: ภาพรวม</a>
+  <a href="04b_cicd_stepbystep.html">👣 บทที่ 4b: จับมือทำ</a>
+</nav>
+
+<h1>👣 บทที่ 4b: จับมือทำ CI/CD บน Azure DevOps ทีละขั้นตอน</h1>
+<p>บทนี้จะพาทำตั้งแต่เปิด Azure DevOps จนถึง Pipeline รัน test ได้จริง</p>
+
+<div class="box">
+  <strong>สิ่งที่ต้องมีก่อน:</strong><br>
+  ✅ มี account Azure DevOps (สมัครฟรีที่ <a href="https://dev.azure.com" target="_blank">dev.azure.com</a>)<br>
+  ✅ มี VS Code ติดตั้งแล้ว<br>
+  ✅ มี Python ติดตั้งแล้ว<br>
+  ✅ มี test script เขียนไว้แล้ว (จากบทที่ 1-3)
+</div>
+
+<hr>
+
+<h2>ภาพรวมที่จะทำทั้งหมด</h2>
+<pre><code class="language-plaintext">ขั้นตอนที่ 1: สร้าง Project ใน Azure DevOps
+        ↓
+ขั้นตอนที่ 2: สร้าง Repo ใน Azure DevOps
+        ↓
+ขั้นตอนที่ 3: เตรียม code บนเครื่องเรา
+        ↓
+ขั้นตอนที่ 4: สร้างไฟล์ azure-pipelines.yml
+        ↓
+ขั้นตอนที่ 5: Push code ขึ้น Azure Repos
+        ↓
+ขั้นตอนที่ 6: สร้าง Pipeline ใน Azure DevOps
+        ↓
+ขั้นตอนที่ 7: ดู Pipeline รัน test อัตโนมัติ
+</code></pre>
+
+<hr>
+
+<div class="step">
+  <h3><span class="badge">1</span> สร้าง Project ใน Azure DevOps</h3>
+  <p>Project คือ "พื้นที่ทำงาน" ที่รวม Repo, Pipeline, Boards ไว้ด้วยกัน</p>
+  <pre><code class="language-plaintext">1. เปิด https://dev.azure.com
+2. Login ด้วย account Microsoft
+3. กด "New Organization" ถ้ายังไม่มี หรือเลือก Organization ที่มีอยู่
+4. กด "New Project"
+5. ตั้งชื่อ Project เช่น "QA-Automation"
+6. เลือก Visibility: Private
+7. กด "Create Project"
+</code></pre>
+  <div class="success">✅ ได้ Project ใหม่แล้ว จะเห็นหน้า Project Overview</div>
+</div>
+
+<div class="step">
+  <h3><span class="badge">2</span> สร้าง Repo ใน Azure DevOps</h3>
+  <p>Repo คือที่เก็บ code ของเรา เหมือน Google Drive แต่สำหรับ code</p>
+  <pre><code class="language-plaintext">1. ใน Project ที่สร้าง กดที่ "Repos" ในเมนูซ้าย
+2. จะเห็น Repo ที่ชื่อเดียวกับ Project ถูกสร้างให้อัตโนมัติ
+3. กด "Initialize" เพื่อสร้าง branch main
+4. Copy URL ของ Repo ไว้ใช้ในขั้นตอนถัดไป
+   ตัวอย่าง: https://dev.azure.com/your-org/QA-Automation/_git/QA-Automation
+</code></pre>
+  <div class="success">✅ ได้ Repo แล้ว พร้อมเก็บ code</div>
+</div>
+
+<div class="step">
+  <h3><span class="badge">3</span> เตรียม code บนเครื่องเรา</h3>
+  <p>เปิด Terminal แล้วสร้างโครงสร้างโปรเจกต์</p>
+  <pre><code class="language-bash"># สร้างโฟลเดอร์โปรเจกต์
+mkdir qa-automation
+cd qa-automation
+
+# สร้าง virtual environment
+python3 -m venv venv
+source venv/bin/activate   # Mac
+
+# ติดตั้ง library
+pip install pytest playwright pytest-playwright requests robotframework robotframework-browser
+
+# ติดตั้ง browser
+playwright install chromium
+
+# สร้างโครงสร้างโฟลเดอร์
+mkdir pages tests api_tests robot_tests
+</code></pre>
+
+  <p>สร้างไฟล์ <code class="inline">requirements.txt</code></p>
+  <pre><code class="language-plaintext">pytest
+playwright
+pytest-playwright
+requests
+pytest-html
+robotframework
+robotframework-browser
+</code></pre>
+</div>
+
+<div class="step">
+  <h3><span class="badge">4</span> สร้างไฟล์ azure-pipelines.yml</h3>
+  <p>ไฟล์นี้ต้องอยู่ใน root ของโปรเจกต์ (ระดับเดียวกับ requirements.txt)</p>
+  <pre><code class="language-yaml"># azure-pipelines.yml
+# ไฟล์นี้บอก Azure DevOps ว่าให้ทำอะไรเมื่อมี code ใหม่เข้ามา
+
+# trigger = รัน pipeline เมื่อไหร่
+# ทุกครั้งที่ push ขึ้น branch main หรือ develop
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+# pool = รันบนเครื่องอะไร
+# ubuntu-latest = เครื่อง Linux ที่ Azure เตรียมให้ฟรี
+pool:
+  vmImage: ubuntu-latest
+
+# stages = ขั้นตอนใหญ่ๆ แต่ละ stage รันแยกกัน
+stages:
+
+# ════════════════════════════
+# Stage 1: Playwright UI Tests
+# ════════════════════════════
+- stage: PlaywrightTests
+  displayName: 'Playwright UI Tests'
+  jobs:
+  - job: RunPlaywright
+    displayName: 'Run Playwright Tests'
+    steps:
+
+    # ขั้นตอนที่ 1: ติดตั้ง Python
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+      displayName: 'Setup Python 3.11'
+
+    # ขั้นตอนที่ 2: ติดตั้ง library
+    - script: |
+        pip install -r requirements.txt
+        playwright install chromium
+      displayName: 'Install dependencies'
+
+    # ขั้นตอนที่ 3: รัน test
+    - script: |
+        pytest tests/ -v --html=playwright-report.html
+      displayName: 'Run Playwright tests'
+
+    # ขั้นตอนที่ 4: เก็บ report ไว้ให้ดาวน์โหลด
+    - task: PublishBuildArtifacts@1
+      condition: always()
+      inputs:
+        pathToPublish: 'playwright-report.html'
+        artifactName: 'playwright-report'
+      displayName: 'Publish Playwright Report'
+
+# ════════════════════════════
+# Stage 2: API Tests
+# ════════════════════════════
+- stage: APITests
+  displayName: 'API Tests'
+  dependsOn: PlaywrightTests   # รอให้ Stage 1 เสร็จก่อน
+  jobs:
+  - job: RunAPITests
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    - script: pip install -r requirements.txt
+      displayName: 'Install dependencies'
+    - script: pytest api_tests/ -v
+      displayName: 'Run API tests'
+
+# ════════════════════════════
+# Stage 3: Robot Framework Tests
+# ════════════════════════════
+- stage: RobotTests
+  displayName: 'Robot Framework Tests'
+  dependsOn: APITests   # รอให้ Stage 2 เสร็จก่อน
+  jobs:
+  - job: RunRobotTests
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    - script: |
+        pip install -r requirements.txt
+        rfbrowser init
+      displayName: 'Install dependencies'
+    - script: robot robot_tests/
+      displayName: 'Run Robot tests'
+    - task: PublishBuildArtifacts@1
+      condition: always()
+      inputs:
+        pathToPublish: 'report.html'
+        artifactName: 'robot-report'
+      displayName: 'Publish Robot Report'
+</code></pre>
+  <div class="warn">
+    <strong>⚠️ สำคัญมาก!</strong> ไฟล์นี้ต้องชื่อ <code class="inline">azure-pipelines.yml</code> เท่านั้น<br>
+    และต้องอยู่ใน root ของโปรเจกต์ ไม่ใช่ในโฟลเดอร์ย่อย
+  </div>
+</div>
+
+<div class="step">
+  <h3><span class="badge">5</span> Push code ขึ้น Azure Repos</h3>
+  <p>เปิด Terminal แล้วพิมพ์ทีละบรรทัด</p>
+  <pre><code class="language-bash"># เข้าไปในโฟลเดอร์โปรเจกต์
+cd qa-automation
+
+# เริ่มต้นใช้ git
+git init
+
+# บอก git ว่าจะ track ไฟล์ทั้งหมด
+git add .
+
+# บันทึก snapshot พร้อมข้อความอธิบาย
+git commit -m "feat: add QA automation tests and pipeline"
+
+# เชื่อม local กับ Azure Repos
+# แทนที่ URL ด้วย URL ที่ copy มาจากขั้นตอนที่ 2
+git remote add origin https://dev.azure.com/your-org/QA-Automation/_git/QA-Automation
+
+# เปลี่ยนชื่อ branch เป็น main
+git branch -M main
+
+# push code ขึ้น Azure Repos
+git push -u origin main
+</code></pre>
+  <div class="success">✅ code ขึ้น Azure Repos แล้ว ไปดูใน Repos จะเห็นไฟล์ทั้งหมด</div>
+</div>
+
+<div class="step">
+  <h3><span class="badge">6</span> สร้าง Pipeline ใน Azure DevOps</h3>
+  <pre><code class="language-plaintext">1. ใน Project กดที่ "Pipelines" ในเมนูซ้าย
+2. กด "New Pipeline"
+3. เลือก "Azure Repos Git"
+4. เลือก Repo ที่เพิ่ง push ขึ้นไป
+5. เลือก "Existing Azure Pipelines YAML file"
+6. เลือก Branch: main
+7. เลือก Path: /azure-pipelines.yml
+8. กด "Continue"
+9. ดูไฟล์ที่แสดงขึ้นมา แล้วกด "Run"
+</code></pre>
+  <div class="success">✅ Pipeline ถูกสร้างแล้ว และกำลังรันครั้งแรก!</div>
+</div>
+
+<div class="step">
+  <h3><span class="badge">7</span> ดู Pipeline รัน</h3>
+  <pre><code class="language-plaintext">1. ไปที่ Pipelines → เลือก pipeline ที่สร้าง
+2. จะเห็น stages ทั้งหมด:
+   - Playwright UI Tests
+   - API Tests
+   - Robot Framework Tests
+3. คลิกเข้าไปแต่ละ stage เพื่อดู log
+4. ถ้า test ผ่าน → แสดง ✅ สีเขียว
+5. ถ้า test fail → แสดง ❌ สีแดง พร้อม error message
+6. ดาวน์โหลด report ได้จาก Artifacts ด้านขวา
+</code></pre>
+  <div class="success">
+    ✅ เสร็จแล้ว! ตอนนี้ทุกครั้งที่ push code ขึ้น Azure Repos<br>
+    Pipeline จะรัน test อัตโนมัติทันที ไม่ต้องสั่งเอง
+  </div>
+</div>
+
+<hr>
+
+<h2>🔁 ทุกครั้งที่แก้ code หรือเพิ่ม test ใหม่</h2>
+<pre><code class="language-bash"># แก้ code หรือเพิ่ม test ใหม่ใน VS Code
+# แล้วทำแค่นี้
+
+git add .
+git commit -m "feat: เพิ่ม test case login"
+git push
+
+# Pipeline จะรัน test อัตโนมัติทันที ไม่ต้องทำอะไรเพิ่ม
+</code></pre>
+
+<hr>
+
+<h2>🔍 ถ้า Pipeline Fail ต้องทำอะไร?</h2>
+
+<div class="step">
+  <h3>วิธีดู Error</h3>
+  <pre><code class="language-plaintext">1. ไปที่ Pipelines → คลิก pipeline run ที่ fail
+2. คลิก stage ที่แสดง ❌
+3. คลิก job ที่ fail
+4. ดู log ที่แสดงขึ้นมา
+5. หา error message ว่า fail ตรงไหน เพราะอะไร
+</code></pre>
+</div>
+
+<div class="step">
+  <h3>ตัวอย่าง Error ที่เจอบ่อย</h3>
+  <table>
+    <tr><th>Error</th><th>สาเหตุ</th><th>วิธีแก้</th></tr>
+    <tr><td>ModuleNotFoundError</td><td>ลืมใส่ library ใน requirements.txt</td><td>เพิ่ม library ใน requirements.txt แล้ว push ใหม่</td></tr>
+    <tr><td>playwright install failed</td><td>ลืมรัน playwright install chromium</td><td>เพิ่ม playwright install chromium ใน pipeline</td></tr>
+    <tr><td>Test FAILED</td><td>test case fail จริงๆ</td><td>แก้ code หรือแก้ test แล้ว push ใหม่</td></tr>
+    <tr><td>YAML syntax error</td><td>เขียน azure-pipelines.yml ผิด</td><td>เช็ค indentation ใน yml ให้ถูกต้อง</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<h2>📋 สรุปทั้งหมด</h2>
+<pre><code class="language-plaintext">สร้าง Project ใน Azure DevOps
+        ↓
+สร้าง Repo
+        ↓
+เตรียม code + requirements.txt + azure-pipelines.yml
+        ↓
+git push ขึ้น Azure Repos
+        ↓
+สร้าง Pipeline โดยชี้ไปที่ azure-pipelines.yml
+        ↓
+Pipeline รัน test อัตโนมัติทุกครั้งที่ push code
+        ↓
+ดูผลและ report ใน Azure DevOps
+</code></pre>
+
+<div class="warn">
+  <strong>💡 จำไว้:</strong><br>
+  azure-pipelines.yml = สูตรที่บอก Pipeline ว่าให้ทำอะไร<br>
+  Repo = ที่เก็บ code และไฟล์ yml<br>
+  Pipeline = ตัวที่อ่าน yml แล้วทำตาม<br>
+  ทั้ง 3 อย่างนี้ต้องมีครบถึงจะทำงานได้
+</div>
+
+</body>
+</html>

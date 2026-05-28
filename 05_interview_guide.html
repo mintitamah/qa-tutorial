@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 5: คู่มือสัมภาษณ์ QA Automation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .danger { background: #fdedec; border-left: 6px solid #e74c3c; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .step { background: white; border: 1px solid #dce6f0; border-radius: 10px; padding: 20px 24px; margin: 16px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .step h3 { margin-top: 0; color: #2c3e50; }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 50%; width: 32px; height: 32px; text-align: center; line-height: 32px; font-weight: bold; margin-right: 10px; font-size: 16px; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+  .tab-container { margin: 20px 0; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 0; flex-wrap: wrap; }
+  .tab { padding: 10px 20px; background: #dce6f0; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 500; border: none; font-size: 14px; }
+  .tab.active { background: #2980b9; color: white; }
+  .tab-content { display: none; background: white; border: 1px solid #dce6f0; border-radius: 0 8px 8px 8px; padding: 24px; }
+  .tab-content.active { display: block; }
+</style>
+<script>
+function showTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</head>
+<body>
+<nav>
+  <a href="00_index.html">หน้าหลัก</a>
+  <a href="01_api_automation.html">บทที่ 1: API</a>
+  <a href="02_playwright.html">บทที่ 2: Playwright</a>
+  <a href="03_robot_framework.html">บทที่ 3: Robot</a>
+  <a href="04_cicd.html">บทที่ 4: CI/CD</a>
+  <a href="05_interview_guide.html">บทที่ 5: คู่มือสัมภาษณ์</a>
+</nav>
+<h1>บทที่ 5: คู่มือสัมภาษณ์ QA Automation</h1>
+<p>บทนี้แบ่งเป็น 3 ส่วน กดเลือกได้เลย</p>
+<div class="tab-container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('robot_tab', this)">Robot Framework</button>
+    <button class="tab" onclick="showTab('playwright_tab', this)">Playwright</button>
+    <button class="tab" onclick="showTab('compare_tab', this)">เปรียบเทียบ และ คำถามสัมภาษณ์</button>
+    <button class="tab" onclick="showTab('cicd_tab', this)">CI/CD กับ Azure DevOps</button>
+    <button class="tab" onclick="showTab('keywords_tab', this)">Keywords พื้นฐาน</button>
+    <button class="tab" onclick="showTab('typescript_tab', this)">TypeScript คืออะไร</button>
+  </div>
+  <div id="robot_tab" class="tab-content active">
+
+    <h2>ถ้าทีมยังไม่เคยทำ Automate เลย จะเริ่มยังไง?</h2>
+    <p>จะเริ่มจาก <strong>API Automation ก่อนเสมอ</strong> เพราะ</p>
+    <div class="box">
+      <strong>เหตุผลที่เริ่ม API ก่อน UI:</strong><br><br>
+      1. เร็วกว่า — ไม่ต้องเปิด browser ไม่ต้องรอหน้าเว็บโหลด<br>
+      2. stable กว่า — ไม่ขึ้นกับ UI ที่เปลี่ยนบ่อย<br>
+      3. ครอบคลุมกว่า — เช็คได้ทุก endpoint ทุก case<br>
+      4. ถ้า API พัง UI ก็พังด้วย เพราะ UI ดึงข้อมูลจาก API<br>
+      เพราะฉะนั้นแก้ API ให้ถูกก่อน แล้วค่อยทำ UI
+    </div>
+
+    <h2>Tech Stack ที่ใช้</h2>
+    <table>
+      <tr><th>Tool</th><th>ทำอะไร</th><th>ใช้เมื่อไหร่</th></tr>
+      <tr><td>Python</td><td>ภาษาที่ใช้รัน Robot</td><td>ต้องมีเสมอ</td></tr>
+      <tr><td>Robot Framework</td><td>ตัว framework หลัก</td><td>ต้องมีเสมอ</td></tr>
+      <tr><td>RequestsLibrary</td><td>ยิง HTTP request สำหรับ API test</td><td>ตอนทำ API test</td></tr>
+      <tr><td>Browser Library</td><td>ควบคุม browser สำหรับ UI test (รุ่นใหม่)</td><td>ตอนทำ UI test</td></tr>
+      <tr><td>SeleniumLibrary</td><td>ควบคุม browser สำหรับ UI test (รุ่นเก่า)</td><td>ถ้ามี codebase เก่า</td></tr>
+    </table>
+
+    <div class="box">
+      <strong>ทำไมมี Library ให้เลือกหลายตัว?</strong><br><br>
+      Robot Framework เป็นแค่ "กรอบ" ไม่ได้ทำอะไรเอง ต้องพึ่ง Library ที่ทำงานจริงๆ<br><br>
+      เหมือนรถยนต์ที่ต้องเลือกเครื่องยนต์:<br>
+      Robot Framework = ตัวรถ<br>
+      RequestsLibrary = เครื่องยนต์สำหรับยิง API<br>
+      Browser Library = เครื่องยนต์สำหรับควบคุม browser (รุ่นใหม่ แนะนำ)<br>
+      SeleniumLibrary = เครื่องยนต์สำหรับควบคุม browser (รุ่นเก่า)
+    </div>
+
+    <h2>โครงสร้างไฟล์ — ทุกอย่างอยู่ในไฟล์เดียว</h2>
+    <pre><code class="language-plaintext">api_test.robot  หรือ  login.robot
+│
+├── *** Settings ***
+│   บอกว่าจะใช้ Library อะไร เหมือน import ใน Python
+│   ตัวอย่าง: Library    RequestsLibrary
+│
+├── *** Variables ***
+│   เก็บค่าที่ใช้ซ้ำบ่อยๆ ไว้ที่เดียว
+│   ถ้าต้องเปลี่ยน URL หรือ account แก้แค่นี่ที่เดียว
+│   ตัวอย่าง: ${URL}    https://api.example.com
+│
+├── *** Test Cases ***
+│   test case จริงๆ อยู่ตรงนี้
+│   เขียนเป็น keyword อ่านง่าย ไม่ต้องรู้ code
+│   ตัวอย่าง: Get User Should Return 200
+│
+└── *** Keywords ***
+    สร้าง keyword ของตัวเองเพื่อใช้ซ้ำ
+    เหมือน function ใน Python
+    ตัวอย่าง: Open Login Page</code></pre>
+
+    <h2>ตัวอย่าง API Test ด้วย Robot + RequestsLibrary</h2>
+    <pre><code class="language-robot"># ============================================================
+# api_test.robot — ทดสอบ API ด้วย Robot Framework
+# ============================================================
+
+# ===== ส่วนที่ 1: Settings =====
+# บอกว่าจะใช้ Library อะไร เหมือน import ใน Python
+*** Settings ***
+Library    RequestsLibrary
+# RequestsLibrary = Library สำหรับยิง HTTP request เหมือน Postman
+
+
+# ===== ส่วนที่ 2: Variables =====
+# เก็บค่าที่ใช้ซ้ำบ่อยๆ ไว้ที่เดียว
+# ถ้าต้องเปลี่ยน URL แก้แค่นี่ที่เดียว ไม่ต้องแก้ทุก test case
+*** Variables ***
+${BASE_URL}    https://jsonplaceholder.typicode.com
+
+
+# ===== ส่วนที่ 3: Test Cases =====
+# test case จริงๆ อยู่ตรงนี้
+# การ indent (เว้นวรรค 4 ช่อง) สำคัญมาก ต้องทำให้ถูกต้อง
+*** Test Cases ***
+
+# Test 1: เช็คว่า GET user แล้วได้ status 200 มั้ย
+Get User Returns 200
+    # Create Session = สร้างการเชื่อมต่อกับ API
+    # myapi = ชื่อที่เราตั้งให้ session นี้ ตั้งชื่ออะไรก็ได้
+    # ${BASE_URL} = URL ที่กำหนดไว้ใน Variables ด้านบน
+    Create Session    myapi    ${BASE_URL}
+
+    # GET On Session = ส่ง GET request ไปที่ path /users/1
+    # ${response}= = เก็บผลที่ได้กลับมาไว้ในตัวแปรชื่อ response
+    ${response}=    GET On Session    myapi    /users/1
+
+    # Should Be Equal As Numbers = เช็คว่าตัวเลขเท่ากันมั้ย
+    # ${response.status_code} = status code ที่ได้กลับมา
+    # 200 = ค่าที่คาดหวัง
+    Should Be Equal As Numbers    ${response.status_code}    200
+
+
+# Test 2: เช็คว่า response มี field name มั้ย
+Get User Has Name Field
+    Create Session    myapi    ${BASE_URL}
+    ${response}=    GET On Session    myapi    /users/1
+
+    # .json() = แปลง response เป็น dictionary เพื่อเข้าถึง field ได้
+    ${body}=    Set Variable    ${response.json()}
+
+    # Dictionary Should Contain Key = เช็คว่า dictionary มี key นี้มั้ย
+    Dictionary Should Contain Key    ${body}    name
+
+
+# Test 3: เช็คว่า POST สร้างข้อมูลใหม่ได้มั้ย
+Create Post Returns 201
+    Create Session    myapi    ${BASE_URL}
+
+    # Create Dictionary = สร้าง dictionary สำหรับส่งเป็น request body
+    ${payload}=    Create Dictionary
+    ...    title=test post
+    ...    body=hello world
+    ...    userId=1
+
+    # POST On Session = ส่ง POST request พร้อม payload
+    ${response}=    POST On Session    myapi    /posts    json=${payload}
+
+    # 201 = Created = สร้างสำเร็จ
+    Should Be Equal As Numbers    ${response.status_code}    201
+
+
+# ===== ส่วนที่ 4: Keywords =====
+# สร้าง keyword ของตัวเองเพื่อใช้ซ้ำ ไม่ต้องเขียนซ้ำทุก test
+*** Keywords ***
+
+# keyword นี้ทำหน้าที่สร้าง session เพื่อใช้ซ้ำในหลาย test
+Setup API Session
+    Create Session    myapi    ${BASE_URL}</code></pre>
+
+    <h2>ตัวอย่าง UI Test ด้วย Robot + Browser Library</h2>
+    <pre><code class="language-robot"># ============================================================
+# login.robot — ทดสอบหน้า login ด้วย Robot Framework
+# ============================================================
+
+# ===== ส่วนที่ 1: Settings =====
+*** Settings ***
+Library    Browser
+# Browser Library = Library สำหรับควบคุม browser
+# ใช้ Playwright เป็น engine ข้างใน
+
+
+# ===== ส่วนที่ 2: Variables =====
+*** Variables ***
+${URL}          https://www.saucedemo.com
+# URL ของเว็บที่จะทดสอบ
+
+${VALID_USER}   standard_user
+# username ที่ถูกต้องสำหรับทดสอบ
+
+${VALID_PASS}   secret_sauce
+# password ที่ถูกต้องสำหรับทดสอบ
+
+
+# ===== ส่วนที่ 3: Test Cases =====
+*** Test Cases ***
+
+# Test 1: login ด้วยข้อมูลถูกต้อง ต้องเข้าหน้า inventory ได้
+Login With Valid Credentials
+    Open Login Page
+    # Fill Text = กรอกข้อความลงใน element ที่ระบุ
+    # id=user-name = หา element ที่มี id="user-name"
+    Fill Text    id=user-name    ${VALID_USER}
+    Fill Text    id=password     ${VALID_PASS}
+
+    # Click = กดปุ่ม
+    Click        id=login-button
+
+    # Get Url == = เช็คว่า URL ตรงกับที่คาดมั้ย
+    Get Url      ==    ${URL}/inventory.html
+
+
+# Test 2: login ด้วย password ผิด ต้องเห็น error message
+Login With Wrong Password
+    Open Login Page
+    Fill Text    id=user-name    ${VALID_USER}
+    Fill Text    id=password     wrongpassword
+    # ใส่ password ผิดตั้งใจ เพื่อทดสอบว่า error แสดงถูกมั้ย
+    Click        id=login-button
+
+    # Get Text = ดึงข้อความจาก element
+    # contains = เช็คว่ามีข้อความนี้อยู่มั้ย
+    Get Text     [data-test=error]    contains    Username and password do not match
+
+
+# Test 3: login โดยไม่กรอก username ต้องเห็น error
+Login With Empty Username
+    Open Login Page
+    # ${EMPTY} = ตัวแปรพิเศษของ Robot หมายถึงค่าว่าง ""
+    Fill Text    id=user-name    ${EMPTY}
+    Fill Text    id=password     ${VALID_PASS}
+    Click        id=login-button
+    Get Text     [data-test=error]    contains    Username is required
+
+
+# ===== ส่วนที่ 4: Keywords =====
+*** Keywords ***
+
+# keyword นี้ทำหน้าที่เปิด browser และไปที่หน้า login
+# ทุก test case เรียกใช้ keyword นี้แทนที่จะเขียนซ้ำ
+Open Login Page
+    # New Browser = เปิด browser ใหม่
+    # chromium = ใช้ Chrome
+    # headless=true = ไม่แสดงหน้าจอ browser เร็วกว่า
+    # headless=false = แสดงหน้าจอ browser ดูได้ว่าทำอะไรอยู่
+    New Browser    chromium    headless=true
+
+    # New Page = เปิด tab ใหม่แล้วไปที่ URL นี้
+    New Page       ${URL}</code></pre>
+
+    <h2>รันแค่คำสั่งเดียว</h2>
+    <pre><code class="language-bash"># รัน API test ทั้งหมดในไฟล์ api_test.robot
+robot api_test.robot
+
+# รัน UI test ทั้งหมดในไฟล์ login.robot
+robot login.robot
+
+# รัน test เฉพาะ case ที่ต้องการ
+# --test = ระบุชื่อ test case ที่จะรัน
+robot --test "Get User Returns 200" api_test.robot
+
+# หลังรันเสร็จ Robot สร้าง report ให้อัตโนมัติ
+# report.html = สรุปผล pass/fail ของทุก test case
+# log.html    = รายละเอียดทุก step ที่รัน พร้อม screenshot</code></pre>
+
+    <h2>ข้อดีและข้อเสีย</h2>
+    <table>
+      <tr><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+      <tr><td>อ่านง่ายมาก ไม่ต้องรู้ Python keyword เขียนเป็นภาษาธรรมดา</td><td>ช้ากว่า Playwright เพราะมี wrapper ครอบอีกชั้น</td></tr>
+      <tr><td>ทุกอย่างอยู่ในไฟล์เดียว เปิดไฟล์เดียวเห็นทุกอย่าง</td><td>ยืดหยุ่นน้อยกว่า ถ้า logic ซับซ้อนเขียนยาก</td></tr>
+      <tr><td>report สวยงามในตัว ไม่ต้องติดตั้งเพิ่ม</td><td>debug ยากกว่า ถ้า test fail หา error ยากกว่า</td></tr>
+      <tr><td>เหมาะกับทีมที่มีทั้ง dev และ non-dev QA</td><td>ถ้า test เยอะมากๆ จัดการไฟล์ยากกว่า Playwright</td></tr>
+      <tr><td>รันง่าย คำสั่งเดียวจบ robot ชื่อไฟล์.robot</td><td>ต้องเรียนรู้ syntax ของ Robot เพิ่มเติม</td></tr>
+    </table>
+  </div>
+  <div id="playwright_tab" class="tab-content">
+
+    <h2>ถ้าทีมยังไม่เคยทำ Automate เลย จะเริ่มยังไง?</h2>
+    <p>เหมือนกับ Robot คือ <strong>เริ่มจาก API Automation ก่อนเสมอ</strong> ด้วยเหตุผลเดียวกัน แต่ใช้ tool ต่างกัน</p>
+
+    <h2>Tech Stack ที่ใช้</h2>
+    <table>
+      <tr><th>Tool</th><th>ทำอะไร</th><th>ใช้เมื่อไหร่</th></tr>
+      <tr><td>Python</td><td>ภาษาที่ใช้เขียน script ทั้งหมด</td><td>ต้องมีเสมอ</td></tr>
+      <tr><td>Playwright</td><td>library หลักสำหรับ UI test ควบคุม browser โดยตรง</td><td>ตอนทำ UI test</td></tr>
+      <tr><td>pytest</td><td>ตัวรัน test และสรุปผล pass/fail</td><td>ต้องมีเสมอ</td></tr>
+      <tr><td>requests</td><td>library สำหรับ API test ยิง HTTP request</td><td>ตอนทำ API test</td></tr>
+      <tr><td>VS Code</td><td>โปรแกรมที่ใช้เขียน code</td><td>ต้องมีเสมอ</td></tr>
+    </table>
+
+    <div class="box">
+      <strong>ทำไม Playwright ถึงเร็วกว่า Robot?</strong><br><br>
+      Robot ใช้ Library เป็นตัวกลาง:<br>
+      เรา → Robot keyword → Browser Library → Playwright → browser<br>
+      มี 2 ชั้นกลาง ทำให้ช้ากว่า<br><br>
+      Playwright คุยตรงๆ ไม่มีตัวกลาง:<br>
+      เรา → Playwright → browser<br>
+      เพราะฉะนั้น Playwright เร็วกว่า Robot
+    </div>
+
+    <h2>โครงสร้างไฟล์ — แยกออกเป็นหลายไฟล์</h2>
+    <pre><code class="language-plaintext">qa-automation/
+│
+├── pages/
+│   └── login_page.py
+│       ไฟล์นี้คือ "แผนที่" ของหน้าเว็บ
+│       บอกว่า element ต่างๆ อยู่ที่ไหน
+│       ถ้า developer เปลี่ยน id แก้แค่ไฟล์นี้ที่เดียว
+│
+└── tests/
+    ├── test_login.py   ← test case สำหรับ UI
+    └── test_api.py     ← test case สำหรับ API</code></pre>
+
+    <div class="warn">
+      <strong>ทำไมต้องแยกหลายไฟล์?</strong><br><br>
+      สมมุติมี 50 test case ที่ต้องกรอก username ทุก test case ใช้ id="user-name" เหมือนกัน<br><br>
+      ถ้าไม่แยกไฟล์ → developer เปลี่ยน id → ต้องแก้ทุก test case ทั้ง 50 อัน<br>
+      ถ้าแยกไฟล์ด้วย Page Object Model → แก้แค่ pages/login_page.py ที่เดียว → ทุก test case ได้รับผลทันที
+    </div>
+
+    <h2>ตัวอย่าง API Test ด้วย Playwright + requests</h2>
+    <pre><code class="language-python"># ============================================================
+# tests/test_api.py — ทดสอบ API ด้วย Python + requests
+# ============================================================
+
+# ===== ส่วนที่ 1: Import library =====
+
+# requests = library สำหรับยิง HTTP request
+# เหมือน Postman แต่เป็น code ทำงานอัตโนมัติได้
+import requests
+
+# BASE_URL = URL หลักของ API ที่จะทดสอบ
+# เก็บไว้ที่เดียว ถ้าต้องเปลี่ยนแก้แค่นี่ที่เดียว
+BASE_URL = "https://jsonplaceholder.typicode.com"
+
+
+# ===== ส่วนที่ 2: Test Cases =====
+# ทุก function ที่ขึ้นต้นด้วย test_ จะถูก pytest รันเป็น test case
+# pytest จะหา function ที่ขึ้นต้นด้วย test_ ให้อัตโนมัติ
+
+
+# Test 1: เช็คว่า GET user แล้วได้ status 200 มั้ย
+def test_get_user_returns_200():
+    # requests.get = ส่ง GET request ไปที่ URL นี้
+    # f"{BASE_URL}/users/1" = https://jsonplaceholder.typicode.com/users/1
+    response = requests.get(f"{BASE_URL}/users/1")
+
+    # assert = เช็คเงื่อนไข
+    # ถ้าเงื่อนไขเป็นจริง → ผ่าน อ่านบรรทัดต่อไป
+    # ถ้าเงื่อนไขเป็นเท็จ → test fail ทันที แสดง error
+    # response.status_code = ตัวเลข status ที่ได้กลับมา เช่น 200, 404
+    assert response.status_code == 200
+
+
+# Test 2: เช็คว่า response มี field ครบมั้ย
+def test_get_user_has_correct_fields():
+    response = requests.get(f"{BASE_URL}/users/1")
+
+    # .json() = แปลง response จาก text ธรรมดา → เป็น dictionary Python
+    # เหมือนข้อมูล JSON ที่เห็นใน Postman panel ด้านล่าง
+    body = response.json()
+
+    # "id" in body = เช็คว่า key "id" มีอยู่ใน dictionary มั้ย
+    assert "id" in body      # ต้องมี field id
+    assert "name" in body    # ต้องมี field name
+    assert "email" in body   # ต้องมี field email
+
+
+# Test 3: เช็คว่า POST สร้างข้อมูลใหม่ได้มั้ย
+def test_create_post_returns_201():
+    # payload = ข้อมูลที่จะส่งไปสร้างใหม่
+    # เหมือนกับที่เราใส่ใน Body tab ของ Postman
+    payload = {
+        "title": "test post",   # หัวข้อของ post
+        "body": "hello world",  # เนื้อหาของ post
+        "userId": 1             # id ของ user ที่สร้าง post
+    }
+
+    # requests.post = ส่ง POST request พร้อมข้อมูล
+    # json=payload = ส่ง payload เป็น JSON body
+    response = requests.post(f"{BASE_URL}/posts", json=payload)
+
+    # 201 = Created = สร้างสำเร็จ
+    assert response.status_code == 201
+
+    # เช็คว่าข้อมูลที่ได้กลับมาตรงกับที่ส่งไปมั้ย
+    assert response.json()["title"] == "test post"</code></pre>
+
+    <h2>ตัวอย่าง UI Test ด้วย Playwright</h2>
+    <h3>ไฟล์ที่ 1: pages/login_page.py — แผนที่หน้าเว็บ</h3>
+    <pre><code class="language-python"># ============================================================
+# pages/login_page.py — แผนที่ของหน้า login
+# ไฟล์นี้บอกว่าหน้า login มีอะไรอยู่ที่ไหน
+# และทำอะไรได้บ้าง
+# ============================================================
+
+class LoginPage:
+    # class = พิมพ์เขียวที่บอกว่าหน้า login มีอะไรบ้าง
+
+    # __init__ = constructor รันทันทีตอนสร้าง LoginPage ขึ้นมา
+    # self = ตัวแทนของ object นี้เอง เหมือน "ตัวเอง" ในภาษาไทย
+    # page = browser page ที่ Playwright ส่งมาให้
+    def __init__(self, page):
+        self.page = page
+
+        # locator = วิธีบอก Playwright ว่า element อยู่ที่ไหนบนหน้าเว็บ
+        # หาได้จากการ คลิกขวา → Inspect บนหน้าเว็บ แล้วดู HTML
+
+        # "#user-name" = หา element ที่มี id="user-name"
+        self.username_input = page.locator("#user-name")
+
+        # "#password" = หา element ที่มี id="password"
+        self.password_input = page.locator("#password")
+
+        # "#login-button" = หาปุ่ม login ที่มี id="login-button"
+        self.login_button = page.locator("#login-button")
+
+        # "[data-test='error']" = หากล่องข้อความ error
+        # ที่จะโชว์ตอน login ผิด
+        self.error_message = page.locator("[data-test='error']")
+
+    # method สำหรับเปิดหน้าเว็บ
+    def goto(self):
+        # goto = สั่งให้ browser เปิด URL นี้
+        self.page.goto("https://www.saucedemo.com")
+
+    # method สำหรับกรอก username, password แล้วกด login
+    # รับค่า username และ password มาเป็น parameter
+    def login(self, username, password):
+        # fill = กรอกข้อความลงใน input field
+        self.username_input.fill(username)
+        self.password_input.fill(password)
+
+        # click = กดปุ่ม
+        self.login_button.click()</code></pre>
+
+    <h3>ไฟล์ที่ 2: tests/test_login.py — test case จริงๆ</h3>
+    <pre><code class="language-python"># ============================================================
+# tests/test_login.py — test case สำหรับหน้า login
+# ============================================================
+
+# ===== Import library =====
+
+# Page = type ของ browser page จาก Playwright
+# expect = ตัวช่วยเช็คผลแบบ Playwright
+from playwright.sync_api import Page, expect
+
+# import LoginPage ที่เราสร้างไว้ใน pages/login_page.py
+from pages.login_page import LoginPage
+
+
+# ===== Test Cases =====
+# ทุก function ที่ขึ้นต้นด้วย test_ จะถูก pytest รัน
+# page: Page = Playwright จะสร้าง browser page ให้อัตโนมัติ
+
+
+# Test 1: login ด้วยข้อมูลถูกต้อง ต้องเข้าหน้า inventory ได้
+def test_login_success(page: Page):
+    # สร้าง LoginPage object โดยส่ง page เข้าไป
+    # เหมือนบอกว่า "ใช้แผนที่หน้า login กับ browser page นี้"
+    login = LoginPage(page)
+
+    # เปิดหน้าเว็บ
+    login.goto()
+
+    # กรอก username/password ที่ถูกต้อง แล้วกด login
+    login.login("standard_user", "secret_sauce")
+
+    # expect = เช็คว่าผลเป็นไปตามที่คาดมั้ย
+    # to_have_url = URL ต้องเปลี่ยนไปเป็นหน้า inventory
+    # ถ้าไม่ตรง → test fail ทันที พร้อมแสดง error message
+    expect(page).to_have_url("https://www.saucedemo.com/inventory.html")
+
+
+# Test 2: login ด้วย password ผิด ต้องเห็น error message
+def test_login_wrong_password(page: Page):
+    login = LoginPage(page)
+    login.goto()
+
+    # ใส่ password ผิดตั้งใจ เพื่อทดสอบว่า error แสดงถูกมั้ย
+    login.login("standard_user", "wrong_password")
+
+    # to_be_visible = เช็คว่า element แสดงอยู่บนหน้าจอมั้ย
+    expect(login.error_message).to_be_visible()
+
+    # to_contain_text = เช็คว่ามีข้อความนี้อยู่มั้ย
+    expect(login.error_message).to_contain_text("Username and password do not match")
+
+
+# Test 3: login โดยไม่กรอก username ต้องเห็น error
+def test_login_empty_username(page: Page):
+    login = LoginPage(page)
+    login.goto()
+
+    # ส่ง username เป็นค่าว่าง "" เพื่อทดสอบ validation
+    login.login("", "secret_sauce")
+
+    # เช็คว่า error บอกว่า username จำเป็นต้องกรอก
+    expect(login.error_message).to_contain_text("Username is required")</code></pre>
+
+    <h2>รันแค่คำสั่งเดียว</h2>
+    <pre><code class="language-bash"># รัน API test ทั้งหมด
+# -v = verbose แสดงชื่อ test case แต่ละอันว่า pass/fail
+pytest tests/test_api.py -v
+
+# รัน UI test ทั้งหมด
+pytest tests/test_login.py -v
+
+# รัน UI test แบบเปิด browser ให้เห็นว่ามันทำอะไรอยู่
+# --headed = เปิด browser จริงให้เห็น แนะนำตอนเรียนรู้
+pytest tests/test_login.py --headed -v
+
+# รัน test ทั้งหมดในโฟลเดอร์ tests/ พร้อมกัน
+pytest tests/ -v
+
+# รันแล้วได้ HTML report ด้วย
+# --html=report.html = สร้างไฟล์ report.html
+pytest tests/ -v --html=report.html</code></pre>
+
+    <h2>ข้อดีและข้อเสีย</h2>
+    <table>
+      <tr><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+      <tr><td>เร็วกว่า Robot เพราะคุยกับ browser ตรงๆ ไม่มีตัวกลาง</td><td>ต้องรู้ Python ถึงจะเขียนได้</td></tr>
+      <tr><td>Auto-wait รอ element พร้อมเองอัตโนมัติ ไม่ต้องเขียน sleep()</td><td>โครงสร้างหลายไฟล์ คนใหม่อาจงงตอนแรก</td></tr>
+      <tr><td>ยืดหยุ่นสูง เขียน logic ซับซ้อนได้</td><td>report ต้องติดตั้ง plugin เพิ่ม ไม่มีในตัว</td></tr>
+      <tr><td>debug ง่ายกว่า มี Trace Viewer ดู step-by-step ได้</td><td>ต้องการ element ที่ stable เช่น id หรือ data-test attribute</td></tr>
+      <tr><td>Page Object Model ทำให้ maintain ง่าย แก้ที่เดียวทุก test ได้รับผล</td><td>ถ้า UI ไม่ได้ออกแบบมาดี test จะ flaky</td></tr>
+    </table>
+  </div>
+  <div id="compare_tab" class="tab-content">
+
+    <h2>เปรียบเทียบ Robot vs Playwright</h2>
+    <table>
+      <tr><th>หัวข้อ</th><th>Robot Framework</th><th>Playwright</th></tr>
+      <tr><td>โครงสร้างไฟล์</td><td>ไฟล์เดียว ทุกอย่างอยู่รวมกัน</td><td>หลายไฟล์ pages/ และ tests/</td></tr>
+      <tr><td>ต้องรู้ code</td><td>ไม่จำเป็น keyword อ่านง่าย</td><td>ต้องรู้ Python</td></tr>
+      <tr><td>ความเร็ว</td><td>ช้ากว่า มี wrapper ครอบอีกชั้น</td><td>เร็วกว่า คุยกับ browser ตรงๆ</td></tr>
+      <tr><td>Auto-wait</td><td>มีผ่าน Browser Library</td><td>มีในตัวเลย</td></tr>
+      <tr><td>Report</td><td>สวยในตัว ไม่ต้องติดตั้งเพิ่ม</td><td>ต้องติดตั้ง pytest-html เพิ่ม</td></tr>
+      <tr><td>Debug</td><td>ยากกว่า</td><td>ง่ายกว่า มี Trace Viewer</td></tr>
+      <tr><td>เหมาะกับ</td><td>ทีมที่ไม่ถนัด code</td><td>ทีมที่ถนัด Python</td></tr>
+      <tr><td>API test</td><td>RequestsLibrary</td><td>requests library</td></tr>
+      <tr><td>UI test</td><td>Browser Library หรือ SeleniumLibrary</td><td>Playwright โดยตรง</td></tr>
+      <tr><td>รันด้วยคำสั่ง</td><td>robot ชื่อไฟล์.robot</td><td>pytest tests/</td></tr>
+    </table>
+
+    <h2>Selenium vs Playwright ต่างกันยังไง?</h2>
+    <div class="box">
+      Selenium และ Playwright ทำสิ่งเดียวกัน คือควบคุม browser<br>
+      แต่ Playwright เกิดมาเพื่อแก้ปัญหาของ Selenium โดยตรง
+    </div>
+    <table>
+      <tr><th>หัวข้อ</th><th>Selenium</th><th>Playwright</th></tr>
+      <tr><td>อายุ</td><td>เก่ากว่า (2004)</td><td>ใหม่กว่า (2020)</td></tr>
+      <tr><td>สร้างโดย</td><td>community</td><td>Microsoft</td></tr>
+      <tr><td>Auto-wait</td><td>ต้องเขียน sleep() เอง</td><td>รอ element เองอัตโนมัติ</td></tr>
+      <tr><td>ความเร็ว</td><td>ช้ากว่า</td><td>เร็วกว่ามาก</td></tr>
+      <tr><td>Flaky test</td><td>เจอบ่อยมาก</td><td>น้อยกว่ามาก</td></tr>
+      <tr><td>Trace Viewer</td><td>ไม่มี</td><td>มี ดู step-by-step ได้</td></tr>
+      <tr><td>ใช้ใน Robot ผ่าน</td><td>SeleniumLibrary</td><td>Browser Library</td></tr>
+    </table>
+    <div class="warn">
+      <strong>ทำไมบางบริษัทยังใช้ Selenium อยู่?</strong><br>
+      เพราะมี codebase เก่าที่เขียนด้วย Selenium ไว้แล้ว การเปลี่ยนทั้งหมดใช้เวลาและ effort มาก<br>
+      ถ้าเริ่มโปรเจกต์ใหม่วันนี้ ไม่มีเหตุผลที่จะเลือก Selenium เพราะ Playwright ดีกว่าในทุกด้าน
+    </div>
+
+    <h2>คำถามสัมภาษณ์ที่ควรถาม และวิธีวิเคราะห์คำตอบ</h2>
+
+    <div class="step">
+      <h3>คำถามที่ 1: ถ้าบริษัทยังไม่เคยทำ automate เลย คุณจะเริ่มยังไง?</h3>
+      <div class="success">
+        <strong>คำตอบที่แสดงว่ารู้จริง:</strong><br>
+        → บอกว่าจะเริ่มจาก API test ก่อน เพราะเร็วกว่า stable กว่า<br>
+        → พูดถึงการเช็ค element ว่า stable มั้ย มี id หรือ data-test attribute มั้ย<br>
+        → บอกว่าจะเริ่มจาก critical flow ก่อน เช่น login, หน้าหลัก<br>
+        → พูดถึง CI/CD ด้วยว่าหลังเขียน script เสร็จจะ push ขึ้น pipeline
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        → บอกแค่ว่าจะเขียน script เลย ไม่พูดถึงการวางแผน<br>
+        → ไม่รู้ว่าต้องคุยกับ developer เรื่องอะไรก่อน<br>
+        → ไม่รู้ว่าทำไมต้องเริ่มจาก API ก่อน UI
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>คำถามที่ 2: คุณจะเลือกใช้ Robot Framework หรือ Playwright และทำไม?</h3>
+      <div class="success">
+        <strong>คำตอบที่แสดงว่ารู้จริง:</strong><br>
+        → ไม่ตอบตรงๆ ว่าอันไหนดีกว่า แต่บอกว่าขึ้นอยู่กับทีมและโปรเจกต์<br>
+        → อธิบาย trade-off ได้ เช่น Robot อ่านง่ายกว่า เหมาะทีมที่ไม่ถนัด code<br>
+        → Playwright ยืดหยุ่นกว่า เหมาะทีมที่ถนัด Python<br>
+        → ถามกลับว่าทีมถนัด code มั้ย
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        → ตอบแค่ว่า Playwright ดีกว่าเพราะเร็วกว่า โดยไม่รู้ว่าทำไม<br>
+        → ไม่รู้ว่าเลือกใช้เมื่อไหร่ขึ้นอยู่กับ context อะไร
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>คำถามที่ 3: API test กับ UI test ต่างกันยังไง และควรทำอันไหนก่อน?</h3>
+      <div class="success">
+        <strong>คำตอบที่แสดงว่ารู้จริง:</strong><br>
+        → อธิบายได้ว่า API test เช็ค backend UI test เช็คหน้าเว็บที่ user เห็น<br>
+        → บอกว่าควรทำ API ก่อน เพราะเร็วกว่า ครอบคลุมกว่า<br>
+        → บอกสัดส่วนที่ดีได้ เช่น API 70% UI 30%
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        → ไม่รู้ว่าต่างกันยังไง<br>
+        → ตอบแค่ว่า UI test เพราะเห็นภาพกว่า โดยไม่รู้ว่าทำไมต้องทำ API ก่อน
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>คำถามที่ 4: Flaky Test คืออะไร เคยเจอมั้ย แก้ยังไง?</h3>
+      <div class="success">
+        <strong>คำตอบที่แสดงว่ารู้จริง:</strong><br>
+        → อธิบายได้ว่า flaky test คือ test ที่บางครั้งผ่าน บางครั้งไม่ผ่าน โดยที่ code ไม่ได้เปลี่ยน<br>
+        → บอกสาเหตุได้ เช่น locator ไม่ stable เพราะ UI เปลี่ยนบ่อย network ช้า<br>
+        → บอกวิธีแก้ได้ เช่น ใช้ data-test attribute ใช้ Auto-wait ของ Playwright
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        → ไม่รู้ว่า flaky test คืออะไร<br>
+        → ไม่เคยเจอปัญหานี้เลย แสดงว่าอาจไม่ได้ทำ automate จริงๆ
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>คำถามที่ 5: Page Object Model คืออะไร ทำไมต้องใช้?</h3>
+      <div class="success">
+        <strong>คำตอบที่แสดงว่ารู้จริง:</strong><br>
+        → อธิบายได้ว่าคือการแยก locator ออกจาก test case<br>
+        → บอกได้ว่าทำไมต้องแยก เช่น ถ้า developer เปลี่ยน id แก้แค่ที่เดียว ไม่ต้องแก้ทุก test case<br>
+        → ยกตัวอย่างได้ว่าถ้าไม่ใช้จะเกิดอะไร
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        → ไม่รู้ว่า Page Object Model คืออะไร<br>
+        → รู้แค่ชื่อ แต่อธิบายไม่ได้ว่าทำไมต้องใช้
+      </div>
+    </div>
+
+    <h2>สรุปสิ่งที่ต้องฟังจาก Candidate</h2>
+    <table>
+      <tr><th>รู้จริง</th><th>รู้แค่ผิวเผิน</th></tr>
+      <tr>
+        <td>อธิบาย process ได้ตั้งแต่ต้นจนจบ</td>
+        <td>ตอบได้แค่ทฤษฎี แต่อธิบาย process ไม่ได้</td>
+      </tr>
+      <tr>
+        <td>รู้ว่าต้องเริ่มจากไหน ทำไม</td>
+        <td>ไม่รู้ว่าจะเริ่มยังไงถ้าไม่มีอะไรเลย</td>
+      </tr>
+      <tr>
+        <td>รู้ trade-off ของแต่ละ tool</td>
+        <td>ไม่รู้ว่า flaky test คืออะไร</td>
+      </tr>
+      <tr>
+        <td>พูดถึงปัญหาจริงๆ ที่จะเจอ เช่น flaky test</td>
+        <td>ไม่รู้ว่า CI/CD เกี่ยวกับ automate ยังไง</td>
+      </tr>
+      <tr>
+        <td>รู้ว่าต้องทำงานร่วมกับ developer ยังไง</td>
+        <td>บอกแค่ว่าใช้ AI ช่วยเขียน โดยไม่เข้าใจว่า code ทำงานยังไง</td>
+      </tr>
+      <tr>
+        <td>พูดถึง CI/CD ได้</td>
+        <td>ตอบแค่ว่าอันนี้ดีกว่าอันนั้น โดยไม่รู้ว่าทำไม</td>
+      </tr>
+    </table>
+  </div>
+</div>
+</body>
+</html>
+  <div id="cicd_tab" class="tab-content">
+
+    <h2>CI/CD กับ Azure DevOps คืออะไร?</h2>
+    <div class="box">
+      <strong>CI/CD = แนวคิด</strong> ที่ทำให้การรัน test เป็นอัตโนมัติทุกครั้งที่มีการ push code<br><br>
+      <strong>Azure DevOps = platform</strong> ที่ทำให้ CI/CD เกิดขึ้นจริง มีทั้ง Repos (เก็บ code) และ Pipelines (รัน test อัตโนมัติ)<br><br>
+      <strong>Pipeline = ไฟล์</strong> ที่เราเขียนบอกว่าให้ทำอะไรบ้าง เมื่อมี code ใหม่เข้ามา
+    </div>
+
+    <h2>ทำไมต้องมี CI/CD?</h2>
+    <table>
+      <tr><th>ไม่มี CI/CD</th><th>มี CI/CD</th></tr>
+      <tr><td>QA ต้องนั่งรัน test เองทุกครั้ง</td><td>ระบบรัน test อัตโนมัติทันทีที่มีการ push code</td></tr>
+      <tr><td>ถ้าลืมรัน bug หลุดไป production</td><td>ถ้า test fail แจ้งเตือนทันที merge ไม่ได้</td></tr>
+      <tr><td>ไม่รู้ว่า code ใหม่ทำให้อะไรพัง</td><td>รู้ทันทีว่า test ไหน fail เพราะอะไร</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>เซต Repository ใน Azure DevOps ยังไง?</h2>
+    <p>ก่อนจะตั้ง Pipeline ได้ ต้องมี Repository ก่อน เพราะ Pipeline ต้องดึง code จาก Repo มารัน</p>
+
+    <div class="step">
+      <h3><span class="badge">1</span> สร้าง Project ใหม่</h3>
+      <pre><code class="language-plaintext">1. เปิด https://dev.azure.com แล้ว login
+2. กด "New Project" ที่มุมขวาบน
+3. จะเห็นหน้า "Create a project" มีให้กรอกดังนี้:
+
+   Project name:
+   → ตั้งชื่อโปรเจกต์ เช่น "QA-Automation"
+   → ชื่อนี้จะเป็นชื่อ Repo ด้วย
+
+   Description (ไม่บังคับ):
+   → อธิบายว่าโปรเจกต์นี้ทำอะไร
+
+   Visibility:
+   → Private = เฉพาะคนในทีมเห็นได้ (แนะนำ)
+   → Public = ทุกคนเห็นได้
+
+   Version control:
+   → Git (แนะนำ ใช้กันทั่วไป)
+   → TFVC (รุ่นเก่า ไม่แนะนำ)
+
+   Work item process:
+   → Agile (แนะนำ ถ้าทีมใช้ Agile)
+   → Scrum
+   → Basic
+
+4. กด "Create"</code></pre>
+      <div class="success">เสร็จแล้ว! จะเห็นหน้า Project Overview</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">2</span> Initialize Repository</h3>
+      <pre><code class="language-plaintext">1. กดที่ "Repos" ในเมนูซ้าย
+2. จะเห็น Repo ที่ชื่อเดียวกับ Project ถูกสร้างให้อัตโนมัติ
+3. กด "Initialize" เพื่อสร้าง branch main
+   (ถ้าไม่ Initialize จะยังไม่มี branch ให้ push ขึ้นไปได้)
+
+   ตัวเลือกตอน Initialize:
+   → Add a README: เพิ่มไฟล์ README.md (แนะนำ)
+   → Add a .gitignore: เลือก Python เพื่อไม่ให้ track ไฟล์ที่ไม่จำเป็น
+   → Add a license: ถ้าเป็น internal project ไม่ต้องเลือก
+
+4. Copy URL ของ Repo ไว้ใช้ตอน push code
+   URL จะหน้าตาแบบนี้:
+   https://dev.azure.com/ชื่อ-org/QA-Automation/_git/QA-Automation</code></pre>
+      <div class="success">เสร็จแล้ว! ตอนนี้มี Repo พร้อมรับ code แล้ว</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">3</span> Push Code ขึ้น Repository</h3>
+      <p>เปิด Terminal แล้วพิมพ์ทีละบรรทัด</p>
+      <pre><code class="language-bash"># เข้าไปในโฟลเดอร์โปรเจกต์
+cd qa-automation
+
+# เริ่มต้นใช้ git ในโฟลเดอร์นี้
+# git = ระบบที่ช่วยติดตามการเปลี่ยนแปลงของ code
+git init
+
+# บอก git ว่าจะ track ไฟล์ทั้งหมดในโฟลเดอร์นี้
+git add .
+
+# บันทึก snapshot ของ code พร้อมข้อความอธิบายว่าทำอะไร
+git commit -m "feat: add QA automation tests and pipeline"
+
+# เชื่อม local กับ Azure Repos
+# แทนที่ URL ด้วย URL ที่ copy มาจากขั้นตอนที่ 2
+git remote add origin https://dev.azure.com/your-org/QA-Automation/_git/QA-Automation
+
+# เปลี่ยนชื่อ branch เป็น main
+git branch -M main
+
+# push code ขึ้น Azure Repos ครั้งแรก
+git push -u origin main</code></pre>
+      <div class="success">code ขึ้น Azure Repos แล้ว ไปดูใน Repos จะเห็นไฟล์ทั้งหมด</div>
+    </div>
+
+    <div class="step">
+      <h3><span class="badge">4</span> สร้าง Pipeline</h3>
+      <pre><code class="language-plaintext">1. กดที่ "Pipelines" ในเมนูซ้าย
+2. กด "New Pipeline"
+3. เลือก "Azure Repos Git"
+4. เลือก Repo ที่เพิ่ง push ขึ้นไป
+5. เลือก "Existing Azure Pipelines YAML file"
+6. เลือก Branch: main และ Path: /azure-pipelines.yml
+7. กด "Continue" แล้วกด "Run"</code></pre>
+      <div class="success">Pipeline ถูกสร้างแล้ว และกำลังรันครั้งแรก!</div>
+    </div>
+
+    <h2>ไฟล์ azure-pipelines.yml ที่ต้องมีใน Repo</h2>
+    <pre><code class="language-yaml"># azure-pipelines.yml
+# ไฟล์นี้ต้องอยู่ใน root ของโปรเจกต์ ระดับเดียวกับ requirements.txt
+
+# trigger = รัน pipeline เมื่อไหร่
+# ทุกครั้งที่ push ขึ้น branch main หรือ develop
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+# pool = รันบนเครื่องอะไร
+# ubuntu-latest = เครื่อง Linux ที่ Azure เตรียมให้ฟรี
+pool:
+  vmImage: ubuntu-latest
+
+# stages = ขั้นตอนใหญ่ๆ แต่ละ stage รันแยกกัน
+stages:
+
+# Stage 1: รัน Playwright UI Tests
+- stage: PlaywrightTests
+  displayName: 'Playwright UI Tests'
+  jobs:
+  - job: RunPlaywright
+    steps:
+    # ติดตั้ง Python version 3.11
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    # ติดตั้ง library ทั้งหมดจาก requirements.txt
+    - script: |
+        pip install -r requirements.txt
+        playwright install chromium
+      displayName: 'ติดตั้ง library'
+    # รัน test จริงๆ
+    - script: pytest tests/ -v --html=playwright-report.html
+      displayName: 'รัน Playwright tests'
+    # เก็บ report ไว้ให้ดาวน์โหลด
+    - task: PublishBuildArtifacts@1
+      condition: always()
+      inputs:
+        pathToPublish: 'playwright-report.html'
+        artifactName: 'playwright-report'
+
+# Stage 2: รัน API Tests
+- stage: APITests
+  displayName: 'API Tests'
+  dependsOn: PlaywrightTests
+  jobs:
+  - job: RunAPITests
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    - script: pip install -r requirements.txt
+    - script: pytest api_tests/ -v
+
+# Stage 3: รัน Robot Framework Tests
+- stage: RobotTests
+  displayName: 'Robot Framework Tests'
+  dependsOn: APITests
+  jobs:
+  - job: RunRobotTests
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+    - script: |
+        pip install -r requirements.txt
+        rfbrowser init
+    - script: robot robot_tests/
+    - task: PublishBuildArtifacts@1
+      condition: always()
+      inputs:
+        pathToPublish: 'report.html'
+        artifactName: 'robot-report'</code></pre>
+
+    <h2>คำถามสัมภาษณ์เรื่อง CI/CD ที่ควรรู้</h2>
+
+    <div class="step">
+      <h3>Q: CI/CD คืออะไร และเกี่ยวกับ QA ยังไง?</h3>
+      <div class="success">
+        <strong>คำตอบที่ดี:</strong><br>
+        CI/CD คือระบบที่รัน test อัตโนมัติทุกครั้งที่มีการ push code ครับ/ค่ะ<br>
+        ในฐานะ QA เราเขียน test script แล้ว push ขึ้น Repo<br>
+        Pipeline จะรัน test ให้อัตโนมัติ ถ้า test fail แจ้งเตือนทันที<br>
+        ทำให้ bug ไม่หลุดไป production
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        ไม่รู้ว่า CI/CD คืออะไร หรือรู้แค่ชื่อแต่อธิบายไม่ได้ว่าเกี่ยวกับ QA ยังไง
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Q: Repository คืออะไร ทำไมต้องเซตก่อน Pipeline?</h3>
+      <div class="success">
+        <strong>คำตอบที่ดี:</strong><br>
+        Repository คือที่เก็บ code ทั้งหมดบน cloud เหมือน Google Drive แต่สำหรับ code ครับ/ค่ะ<br>
+        ต้องเซต Repo ก่อน เพราะ Pipeline ต้องดึง code จาก Repo มารัน<br>
+        ถ้าไม่มี Repo Pipeline ไม่รู้จะเอา code มาจากไหน
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        ไม่รู้ว่า Repo คืออะไร หรือไม่รู้ว่าทำไมต้องมีก่อน Pipeline
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Q: ตอนสร้าง Repository ใน Azure DevOps ต้องเซตอะไรบ้าง?</h3>
+      <div class="success">
+        <strong>คำตอบที่ดี:</strong><br>
+        ตอนสร้าง Project ใน Azure DevOps จะมีให้เซต:<br>
+        1. Project name — ชื่อโปรเจกต์ จะเป็นชื่อ Repo ด้วย<br>
+        2. Visibility — Private สำหรับ internal project<br>
+        3. Version control — เลือก Git<br>
+        4. Work item process — เลือก Agile ถ้าทีมใช้ Agile<br><br>
+        หลังสร้าง Project แล้ว ต้อง Initialize Repo ก่อน<br>
+        เพื่อสร้าง branch main ให้พร้อมรับ code
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        ไม่รู้ว่าต้องเซตอะไรบ้าง หรือไม่รู้ว่า Initialize คืออะไร
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Q: azure-pipelines.yml คืออะไร ต้องมีอะไรบ้าง?</h3>
+      <div class="success">
+        <strong>คำตอบที่ดี:</strong><br>
+        azure-pipelines.yml คือไฟล์ที่บอก Azure DevOps ว่าให้ทำอะไรเมื่อมี code ใหม่เข้ามา<br>
+        ต้องมี 3 ส่วนหลัก:<br>
+        1. trigger — บอกว่าให้รัน pipeline เมื่อไหร่ เช่น ทุกครั้งที่ push ขึ้น branch main<br>
+        2. pool — บอกว่าจะรันบนเครื่องอะไร เช่น ubuntu-latest<br>
+        3. stages/steps — บอกว่าให้ทำอะไรบ้าง เช่น ติดตั้ง Python รัน test เก็บ report
+      </div>
+      <div class="danger">
+        <strong>คำตอบที่น่าเป็นห่วง:</strong><br>
+        ไม่รู้ว่าไฟล์นี้คืออะไร หรือรู้แค่ว่ามีไฟล์นี้แต่อธิบายไม่ได้ว่ามีอะไรบ้าง
+      </div>
+    </div>
+
+  </div>
+  <div id="keywords_tab" class="tab-content">
+
+    <h2>Keywords พื้นฐานที่ต้องรู้ — Robot Framework</h2>
+    <p>Robot Framework ใช้ keyword แทน code ทำให้อ่านง่าย แบ่งเป็น 3 กลุ่มหลัก</p>
+
+    <h3>กลุ่มที่ 1: Navigation — เปิดเว็บ ไปหน้าไหน</h3>
+    <table>
+      <tr><th>Keyword</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">New Browser</code></td><td>เปิด browser ใหม่ ระบุว่าใช้ browser อะไร</td><td>New Browser &nbsp; chromium &nbsp; headless=true</td></tr>
+      <tr><td><code class="inline">New Page</code></td><td>เปิด tab ใหม่แล้วไปที่ URL ที่ระบุ</td><td>New Page &nbsp; https://www.saucedemo.com</td></tr>
+      <tr><td><code class="inline">Go To</code></td><td>ไปที่ URL ใหม่ใน tab ที่เปิดอยู่</td><td>Go To &nbsp; https://www.saucedemo.com</td></tr>
+      <tr><td><code class="inline">Close Browser</code></td><td>ปิด browser</td><td>Close Browser</td></tr>
+      <tr><td><code class="inline">Reload</code></td><td>refresh หน้าเว็บ</td><td>Reload</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 2: Action — ทำอะไรบนหน้าเว็บ</h3>
+    <table>
+      <tr><th>Keyword</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">Fill Text</code></td><td>กรอกข้อความลงใน input field</td><td>Fill Text &nbsp; id=user-name &nbsp; standard_user</td></tr>
+      <tr><td><code class="inline">Click</code></td><td>กดปุ่มหรือ element ที่ระบุ</td><td>Click &nbsp; id=login-button</td></tr>
+      <tr><td><code class="inline">Select Options By</code></td><td>เลือก option ใน dropdown</td><td>Select Options By &nbsp; id=dropdown &nbsp; value &nbsp; option1</td></tr>
+      <tr><td><code class="inline">Check Checkbox</code></td><td>ติ๊ก checkbox</td><td>Check Checkbox &nbsp; id=agree</td></tr>
+      <tr><td><code class="inline">Uncheck Checkbox</code></td><td>เอาติ๊ก checkbox ออก</td><td>Uncheck Checkbox &nbsp; id=agree</td></tr>
+      <tr><td><code class="inline">Hover</code></td><td>เอาเมาส์ชี้ที่ element</td><td>Hover &nbsp; id=menu</td></tr>
+      <tr><td><code class="inline">Take Screenshot</code></td><td>ถ่ายรูปหน้าจอ</td><td>Take Screenshot</td></tr>
+      <tr><td><code class="inline">Clear Text</code></td><td>ลบข้อความใน input field</td><td>Clear Text &nbsp; id=user-name</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 3: Assertion — เช็คผลว่าถูกต้องมั้ย</h3>
+    <table>
+      <tr><th>Keyword</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">Get Url</code></td><td>เช็คว่า URL ตรงกับที่คาดมั้ย</td><td>Get Url &nbsp; == &nbsp; https://saucedemo.com/inventory.html</td></tr>
+      <tr><td><code class="inline">Get Text</code></td><td>ดึงข้อความจาก element แล้วเช็ค</td><td>Get Text &nbsp; [data-test=error] &nbsp; contains &nbsp; Username is required</td></tr>
+      <tr><td><code class="inline">Get Element</code></td><td>เช็คว่า element มีอยู่บนหน้าเว็บมั้ย</td><td>Get Element &nbsp; id=login-button</td></tr>
+      <tr><td><code class="inline">Get Title</code></td><td>เช็คว่า title ของหน้าเว็บถูกต้องมั้ย</td><td>Get Title &nbsp; == &nbsp; Swag Labs</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 4: API Keywords (RequestsLibrary)</h3>
+    <table>
+      <tr><th>Keyword</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">Create Session</code></td><td>สร้างการเชื่อมต่อกับ API</td><td>Create Session &nbsp; myapi &nbsp; https://api.example.com</td></tr>
+      <tr><td><code class="inline">GET On Session</code></td><td>ส่ง GET request</td><td>${response}= &nbsp; GET On Session &nbsp; myapi &nbsp; /users/1</td></tr>
+      <tr><td><code class="inline">POST On Session</code></td><td>ส่ง POST request พร้อมข้อมูล</td><td>${response}= &nbsp; POST On Session &nbsp; myapi &nbsp; /posts &nbsp; json=${payload}</td></tr>
+      <tr><td><code class="inline">PUT On Session</code></td><td>ส่ง PUT request เพื่อแก้ไขข้อมูล</td><td>${response}= &nbsp; PUT On Session &nbsp; myapi &nbsp; /posts/1 &nbsp; json=${payload}</td></tr>
+      <tr><td><code class="inline">DELETE On Session</code></td><td>ส่ง DELETE request เพื่อลบข้อมูล</td><td>${response}= &nbsp; DELETE On Session &nbsp; myapi &nbsp; /posts/1</td></tr>
+      <tr><td><code class="inline">Should Be Equal As Numbers</code></td><td>เช็คว่าตัวเลขเท่ากันมั้ย</td><td>Should Be Equal As Numbers &nbsp; ${response.status_code} &nbsp; 200</td></tr>
+      <tr><td><code class="inline">Dictionary Should Contain Key</code></td><td>เช็คว่า dictionary มี key นี้มั้ย</td><td>Dictionary Should Contain Key &nbsp; ${body} &nbsp; name</td></tr>
+    </table>
+
+    <h3>ตัวอย่างโค้ดรวม Robot Keywords</h3>
+    <pre><code class="language-robot">*** Settings ***
+Library    Browser          # สำหรับ UI test
+Library    RequestsLibrary  # สำหรับ API test
+
+*** Variables ***
+${URL}         https://www.saucedemo.com
+${API_URL}     https://jsonplaceholder.typicode.com
+${VALID_USER}  standard_user
+${VALID_PASS}  secret_sauce
+
+*** Test Cases ***
+
+# ตัวอย่าง UI Test
+Login Success
+    New Browser    chromium    headless=true   # เปิด browser
+    New Page       ${URL}                      # เปิดหน้าเว็บ
+    Fill Text      id=user-name    ${VALID_USER}  # กรอก username
+    Fill Text      id=password     ${VALID_PASS}  # กรอก password
+    Click          id=login-button               # กดปุ่ม login
+    Get Url        ==    ${URL}/inventory.html   # เช็ค URL
+
+# ตัวอย่าง API Test
+Get User API
+    Create Session    myapi    ${API_URL}           # สร้าง session
+    ${response}=    GET On Session    myapi    /users/1  # ส่ง GET request
+    Should Be Equal As Numbers    ${response.status_code}    200  # เช็ค status</code></pre>
+
+    <hr>
+
+    <h2>Keywords พื้นฐานที่ต้องรู้ — Playwright (Python)</h2>
+    <p>Playwright ใช้ method ของ Python แบ่งเป็น 3 กลุ่มหลักเหมือนกัน</p>
+
+    <h3>กลุ่มที่ 1: Navigation — เปิดเว็บ ไปหน้าไหน</h3>
+    <table>
+      <tr><th>Method</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">page.goto()</code></td><td>เปิด URL ที่ระบุ</td><td>page.goto("https://www.saucedemo.com")</td></tr>
+      <tr><td><code class="inline">page.go_back()</code></td><td>กดปุ่ม back</td><td>page.go_back()</td></tr>
+      <tr><td><code class="inline">page.go_forward()</code></td><td>กดปุ่ม forward</td><td>page.go_forward()</td></tr>
+      <tr><td><code class="inline">page.reload()</code></td><td>refresh หน้าเว็บ</td><td>page.reload()</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 2: Locator — หา element บนหน้าเว็บ</h3>
+    <p>ก่อนจะทำ action ใดๆ ต้องบอก Playwright ก่อนว่า element อยู่ที่ไหน</p>
+    <table>
+      <tr><th>รูปแบบ</th><th>ใช้เมื่อ</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">page.locator("#id")</code></td><td>หาด้วย id</td><td>page.locator("#user-name")</td></tr>
+      <tr><td><code class="inline">page.locator(".class")</code></td><td>หาด้วย class</td><td>page.locator(".error-message")</td></tr>
+      <tr><td><code class="inline">page.locator("[attr='val']")</code></td><td>หาด้วย attribute</td><td>page.locator("[data-test='error']")</td></tr>
+      <tr><td><code class="inline">page.locator("text=xxx")</code></td><td>หาด้วยข้อความ</td><td>page.locator("text=Login")</td></tr>
+      <tr><td><code class="inline">page.locator("button[type='submit']")</code></td><td>หาด้วย tag + attribute</td><td>page.locator("button[type='submit']")</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 3: Action — ทำอะไรบนหน้าเว็บ</h3>
+    <table>
+      <tr><th>Method</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">.fill()</code></td><td>กรอกข้อความลงใน input field</td><td>page.locator("#user-name").fill("standard_user")</td></tr>
+      <tr><td><code class="inline">.click()</code></td><td>กดปุ่มหรือ element</td><td>page.locator("#login-button").click()</td></tr>
+      <tr><td><code class="inline">.select_option()</code></td><td>เลือก option ใน dropdown</td><td>page.locator("#dropdown").select_option("value1")</td></tr>
+      <tr><td><code class="inline">.check()</code></td><td>ติ๊ก checkbox</td><td>page.locator("#agree").check()</td></tr>
+      <tr><td><code class="inline">.uncheck()</code></td><td>เอาติ๊ก checkbox ออก</td><td>page.locator("#agree").uncheck()</td></tr>
+      <tr><td><code class="inline">.hover()</code></td><td>เอาเมาส์ชี้ที่ element</td><td>page.locator("#menu").hover()</td></tr>
+      <tr><td><code class="inline">.clear()</code></td><td>ลบข้อความใน input field</td><td>page.locator("#user-name").clear()</td></tr>
+      <tr><td><code class="inline">page.screenshot()</code></td><td>ถ่ายรูปหน้าจอ</td><td>page.screenshot(path="screenshot.png")</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 4: Assertion — เช็คผลว่าถูกต้องมั้ย</h3>
+    <table>
+      <tr><th>Method</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">expect().to_be_visible()</code></td><td>เช็คว่า element แสดงอยู่บนหน้าจอมั้ย</td><td>expect(login.error_message).to_be_visible()</td></tr>
+      <tr><td><code class="inline">expect().to_be_hidden()</code></td><td>เช็คว่า element ซ่อนอยู่มั้ย</td><td>expect(login.error_message).to_be_hidden()</td></tr>
+      <tr><td><code class="inline">expect().to_be_enabled()</code></td><td>เช็คว่าปุ่มกดได้มั้ย</td><td>expect(login.login_button).to_be_enabled()</td></tr>
+      <tr><td><code class="inline">expect().to_be_disabled()</code></td><td>เช็คว่าปุ่มกดไม่ได้มั้ย</td><td>expect(login.login_button).to_be_disabled()</td></tr>
+      <tr><td><code class="inline">expect().to_contain_text()</code></td><td>เช็คว่ามีข้อความนี้อยู่มั้ย</td><td>expect(login.error_message).to_contain_text("Username is required")</td></tr>
+      <tr><td><code class="inline">expect().to_have_text()</code></td><td>เช็คว่าข้อความตรงกันเป๊ะมั้ย</td><td>expect(element).to_have_text("Login")</td></tr>
+      <tr><td><code class="inline">expect(page).to_have_url()</code></td><td>เช็คว่า URL ถูกต้องมั้ย</td><td>expect(page).to_have_url("https://saucedemo.com/inventory.html")</td></tr>
+      <tr><td><code class="inline">expect(page).to_have_title()</code></td><td>เช็คว่า title ของหน้าเว็บถูกต้องมั้ย</td><td>expect(page).to_have_title("Swag Labs")</td></tr>
+    </table>
+
+    <h3>กลุ่มที่ 5: API Keywords (requests library)</h3>
+    <table>
+      <tr><th>Method</th><th>ทำอะไร</th><th>ตัวอย่าง</th></tr>
+      <tr><td><code class="inline">requests.get()</code></td><td>ส่ง GET request</td><td>response = requests.get("https://api.example.com/users/1")</td></tr>
+      <tr><td><code class="inline">requests.post()</code></td><td>ส่ง POST request พร้อมข้อมูล</td><td>response = requests.post(url, json=payload)</td></tr>
+      <tr><td><code class="inline">requests.put()</code></td><td>ส่ง PUT request เพื่อแก้ไขข้อมูล</td><td>response = requests.put(url, json=payload)</td></tr>
+      <tr><td><code class="inline">requests.delete()</code></td><td>ส่ง DELETE request เพื่อลบข้อมูล</td><td>response = requests.delete(url)</td></tr>
+      <tr><td><code class="inline">response.status_code</code></td><td>ดึงค่า status code ที่ได้กลับมา</td><td>assert response.status_code == 200</td></tr>
+      <tr><td><code class="inline">response.json()</code></td><td>แปลง response เป็น dictionary</td><td>body = response.json()</td></tr>
+    </table>
+
+    <h3>ตัวอย่างโค้ดรวม Playwright Keywords</h3>
+    <pre><code class="language-python">from playwright.sync_api import Page, expect
+import requests
+
+# ===== UI Test =====
+def test_login_success(page: Page):
+    page.goto("https://www.saucedemo.com")              # เปิดหน้าเว็บ
+    page.locator("#user-name").fill("standard_user")    # กรอก username
+    page.locator("#password").fill("secret_sauce")      # กรอก password
+    page.locator("#login-button").click()               # กดปุ่ม login
+    expect(page).to_have_url("https://www.saucedemo.com/inventory.html")  # เช็ค URL
+
+def test_login_wrong_password(page: Page):
+    page.goto("https://www.saucedemo.com")
+    page.locator("#user-name").fill("standard_user")
+    page.locator("#password").fill("wrongpass")
+    page.locator("#login-button").click()
+    expect(page.locator("[data-test='error']")).to_be_visible()           # เช็คว่า error แสดงมั้ย
+    expect(page.locator("[data-test='error']")).to_contain_text("Username and password do not match")
+
+# ===== API Test =====
+def test_get_user():
+    response = requests.get("https://jsonplaceholder.typicode.com/users/1")  # ส่ง GET
+    assert response.status_code == 200          # เช็ค status code
+    body = response.json()                      # แปลงเป็น dictionary
+    assert "name" in body                       # เช็คว่ามี field name มั้ย</code></pre>
+
+    <hr>
+
+    <h2>เปรียบเทียบ Keywords Robot vs Playwright</h2>
+    <p>ตารางนี้แสดงว่าถ้าอยากทำสิ่งเดียวกัน ใช้คำสั่งอะไรใน Robot และ Playwright</p>
+
+    <h3>Navigation — เปิดเว็บ ไปหน้าไหน</h3>
+    <table>
+      <tr><th>ทำอะไร</th><th>Robot Framework</th><th>Playwright (Python)</th></tr>
+      <tr>
+        <td>เปิด browser และไปที่ URL</td>
+        <td>
+          <code class="inline">New Browser chromium headless=true</code><br>
+          <code class="inline">New Page https://www.saucedemo.com</code><br>
+          <small>headless=true = ไม่แสดงหน้าจอ browser เร็วกว่า</small>
+        </td>
+        <td>
+          <code class="inline">page.goto("https://www.saucedemo.com")</code><br>
+          <small>Playwright เปิด browser ให้อัตโนมัติ ไม่ต้องสั่งแยก</small>
+        </td>
+      </tr>
+      <tr>
+        <td>refresh หน้าเว็บ</td>
+        <td><code class="inline">Reload</code></td>
+        <td><code class="inline">page.reload()</code></td>
+      </tr>
+    </table>
+
+    <h3>Action — ทำอะไรบนหน้าเว็บ</h3>
+    <div class="box">
+      <strong>xxx คืออะไร?</strong><br>
+      xxx คือ locator หรือวิธีบอกว่า element อยู่ที่ไหน<br>
+      หาได้จากการ คลิกขวาที่ element บนเว็บ → Inspect → ดู HTML<br><br>
+      รูปแบบที่ใช้บ่อย:<br>
+      <code class="inline">id=user-name</code> → หา element ที่มี id="user-name" (Robot)<br>
+      <code class="inline">#user-name</code> → หา element ที่มี id="user-name" (Playwright)<br>
+      <code class="inline">[data-test='error']</code> → หา element ที่มี data-test="error" (ทั้งคู่)
+    </div>
+    <table>
+      <tr><th>ทำอะไร</th><th>Robot Framework</th><th>Playwright (Python)</th></tr>
+      <tr>
+        <td>กรอกข้อความใน input</td>
+        <td>
+          <code class="inline">Fill Text &nbsp; id=user-name &nbsp; standard_user</code><br>
+          <small>id=user-name = locator, standard_user = ข้อความที่จะกรอก</small>
+        </td>
+        <td>
+          <code class="inline">page.locator("#user-name").fill("standard_user")</code><br>
+          <small>#user-name = locator, "standard_user" = ข้อความที่จะกรอก</small>
+        </td>
+      </tr>
+      <tr>
+        <td>กดปุ่ม</td>
+        <td>
+          <code class="inline">Click &nbsp; id=login-button</code><br>
+          <small>id=login-button = locator ของปุ่มที่จะกด</small>
+        </td>
+        <td>
+          <code class="inline">page.locator("#login-button").click()</code><br>
+          <small>#login-button = locator ของปุ่มที่จะกด</small>
+        </td>
+      </tr>
+      <tr>
+        <td>เลือก dropdown</td>
+        <td>
+          <code class="inline">Select Options By &nbsp; id=dropdown &nbsp; value &nbsp; option1</code><br>
+          <small>id=dropdown = locator, option1 = ค่าที่จะเลือก</small>
+        </td>
+        <td>
+          <code class="inline">page.locator("#dropdown").select_option("option1")</code><br>
+          <small>#dropdown = locator, "option1" = ค่าที่จะเลือก</small>
+        </td>
+      </tr>
+      <tr>
+        <td>ติ๊ก checkbox</td>
+        <td>
+          <code class="inline">Check Checkbox &nbsp; id=agree</code><br>
+          <small>id=agree = locator ของ checkbox</small>
+        </td>
+        <td>
+          <code class="inline">page.locator("#agree").check()</code><br>
+          <small>#agree = locator ของ checkbox</small>
+        </td>
+      </tr>
+      <tr>
+        <td>ถ่ายรูปหน้าจอ</td>
+        <td>
+          <code class="inline">Take Screenshot</code><br>
+          <small>Robot จะบันทึกรูปให้อัตโนมัติใน log.html</small>
+        </td>
+        <td>
+          <code class="inline">page.screenshot(path="screenshot.png")</code><br>
+          <small>path = ชื่อไฟล์ที่จะบันทึก</small>
+        </td>
+      </tr>
+    </table>
+
+    <h3>Assertion — เช็คผลว่าถูกต้องมั้ย</h3>
+    <table>
+      <tr><th>ทำอะไร</th><th>Robot Framework</th><th>Playwright (Python)</th></tr>
+      <tr>
+        <td>เช็คว่า URL ถูกต้องมั้ย</td>
+        <td>
+          <code class="inline">Get Url &nbsp; == &nbsp; https://saucedemo.com/inventory.html</code><br>
+          <small>== = เท่ากับ, ใส่ URL ที่คาดหวังไว้หลัง ==</small>
+        </td>
+        <td>
+          <code class="inline">expect(page).to_have_url("https://saucedemo.com/inventory.html")</code><br>
+          <small>ใส่ URL ที่คาดหวังใน to_have_url()</small>
+        </td>
+      </tr>
+      <tr>
+        <td>เช็คว่ามีข้อความนี้มั้ย</td>
+        <td>
+          <code class="inline">Get Text &nbsp; [data-test=error] &nbsp; contains &nbsp; Username is required</code><br>
+          <small>[data-test=error] = locator, contains = มีข้อความนี้อยู่มั้ย, Username is required = ข้อความที่คาดหวัง</small>
+        </td>
+        <td>
+          <code class="inline">expect(page.locator("[data-test='error']")).to_contain_text("Username is required")</code><br>
+          <small>to_contain_text() = เช็คว่ามีข้อความนี้อยู่มั้ย</small>
+        </td>
+      </tr>
+      <tr>
+        <td>เช็คว่า element แสดงอยู่มั้ย</td>
+        <td>
+          <code class="inline">Get Element &nbsp; id=login-button</code><br>
+          <small>ถ้าหา element ไม่เจอ test fail ทันที</small>
+        </td>
+        <td>
+          <code class="inline">expect(page.locator("#login-button")).to_be_visible()</code><br>
+          <small>to_be_visible() = เช็คว่า element แสดงอยู่บนหน้าจอมั้ย</small>
+        </td>
+      </tr>
+    </table>
+
+    <h3>API — ยิง HTTP Request</h3>
+    <table>
+      <tr><th>ทำอะไร</th><th>Robot Framework</th><th>Playwright (Python)</th></tr>
+      <tr>
+        <td>ส่ง GET request</td>
+        <td>
+          <code class="inline">Create Session &nbsp; myapi &nbsp; https://api.example.com</code><br>
+          <code class="inline">${response}= &nbsp; GET On Session &nbsp; myapi &nbsp; /users/1</code><br>
+          <small>myapi = ชื่อ session ตั้งชื่ออะไรก็ได้, /users/1 = path ที่จะเรียก</small>
+        </td>
+        <td>
+          <code class="inline">response = requests.get("https://api.example.com/users/1")</code><br>
+          <small>ใส่ URL เต็มๆ ไปเลย ไม่ต้องสร้าง session ก่อน</small>
+        </td>
+      </tr>
+      <tr>
+        <td>ส่ง POST request</td>
+        <td>
+          <code class="inline">${response}= &nbsp; POST On Session &nbsp; myapi &nbsp; /posts &nbsp; json=${payload}</code><br>
+          <small>${payload} = ข้อมูลที่จะส่งไป สร้างด้วย Create Dictionary</small>
+        </td>
+        <td>
+          <code class="inline">response = requests.post("https://api.example.com/posts", json=payload)</code><br>
+          <small>payload = dictionary ที่สร้างไว้ก่อนหน้า</small>
+        </td>
+      </tr>
+      <tr>
+        <td>เช็ค status code</td>
+        <td>
+          <code class="inline">Should Be Equal As Numbers &nbsp; ${response.status_code} &nbsp; 200</code><br>
+          <small>${response.status_code} = ตัวเลข status ที่ได้กลับมา, 200 = ค่าที่คาดหวัง</small>
+        </td>
+        <td>
+          <code class="inline">assert response.status_code == 200</code><br>
+          <small>assert = เช็คเงื่อนไข ถ้าไม่จริง test fail ทันที</small>
+        </td>
+      </tr>
+      <tr>
+        <td>เช็คว่ามี field ใน response มั้ย</td>
+        <td>
+          <code class="inline">Dictionary Should Contain Key &nbsp; ${body} &nbsp; name</code><br>
+          <small>${body} = response ที่แปลงเป็น dictionary แล้ว, name = field ที่จะเช็ค</small>
+        </td>
+        <td>
+          <code class="inline">assert "name" in response.json()</code><br>
+          <small>response.json() = แปลง response เป็น dictionary, "name" = field ที่จะเช็ค</small>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+  <div id="typescript_tab" class="tab-content">
+
+    <h2>ก่อนอื่น JavaScript คืออะไร?</h2>
+    <p>ลองนึกภาพเว็บไซต์ทั่วไป มีองค์ประกอบ 3 อย่าง</p>
+    <table>
+      <tr><th>ภาษา</th><th>ทำอะไร</th><th>เปรียบเหมือน</th></tr>
+      <tr><td>HTML</td><td>โครงสร้างหน้าเว็บ</td><td>โครงบ้าน</td></tr>
+      <tr><td>CSS</td><td>ตกแต่งหน้าเว็บ</td><td>สีทาบ้าน</td></tr>
+      <tr><td>JavaScript</td><td>ทำให้หน้าเว็บมีชีวิต เช่น กดปุ่มแล้วเกิดอะไรขึ้น โหลดข้อมูลมาแสดง</td><td>ระบบไฟฟ้าในบ้าน</td></tr>
+    </table>
+    <div class="box">JavaScript เป็นภาษาที่ browser เข้าใจได้โดยตรง ทุกเว็บไซต์ใช้ JavaScript</div>
+
+    <hr>
+
+    <h2>TypeScript คืออะไร?</h2>
+    <p>TypeScript คือ JavaScript ที่ Microsoft เพิ่มระบบ "ตรวจสอบความถูกต้อง" เข้ามา</p>
+    <div class="box">
+      <strong>JavaScript</strong> = พนักงานที่ทำงานได้ แต่ไม่มีใครตรวจสอบ ทำผิดก็รู้ตอน run แล้ว<br><br>
+      <strong>TypeScript</strong> = พนักงานที่มีหัวหน้าคอยตรวจงานก่อนส่ง ทำผิดรู้ทันทีก่อน run เลย
+    </div>
+
+    <h2>ตัวอย่างให้เห็นภาพชัดๆ</h2>
+    <p>สมมุติเราเขียนฟังก์ชันบวกเลข</p>
+
+    <h3>JavaScript — ไม่มีการตรวจสอบ</h3>
+    <pre><code class="language-javascript">function add(a, b) {
+    return a + b
+}
+
+add(5, 10)        // ได้ 15 ถูกต้อง
+add(5, "hello")   // ได้ "5hello" ผิดแต่ไม่มี error!
+                  // รู้ว่าผิดตอน run แล้วเท่านั้น</code></pre>
+
+    <h3>TypeScript — มีการตรวจสอบก่อน run</h3>
+    <pre><code class="language-typescript">function add(a: number, b: number): number {
+    return a + b
+}
+//          ↑              ↑         ↑
+//     a ต้องเป็น number  b ต้องเป็น number  ผลลัพธ์ต้องเป็น number
+
+add(5, 10)        // ได้ 15 ถูกต้อง
+add(5, "hello")   // Error ทันทีก่อน run!
+                  // TypeScript บอกว่า "hello" ไม่ใช่ number</code></pre>
+
+    <hr>
+
+    <h2>Type ที่ใช้บ่อยใน TypeScript</h2>
+    <pre><code class="language-typescript">// string = ข้อความ
+let name: string = "สมชาย"
+
+// number = ตัวเลข
+let age: number = 25
+
+// boolean = true หรือ false เท่านั้น
+let isLoggedIn: boolean = true
+
+// array = รายการของข้อมูลประเภทเดียวกัน
+let fruits: string[] = ["apple", "banana", "orange"]
+
+// object = กลุ่มของข้อมูลหลายประเภท
+let user: { name: string, age: number } = {
+    name: "สมชาย",
+    age: 25
+}</code></pre>
+
+    <hr>
+
+    <h2>TypeScript กับ Playwright เกี่ยวกันยังไง?</h2>
+    <p>Playwright รองรับหลายภาษา เราเลือกได้ว่าจะเขียนด้วยภาษาอะไร</p>
+    <table>
+      <tr><th>ภาษา</th><th>เหมาะกับทีมไหน</th></tr>
+      <tr><td>Playwright + Python</td><td>ทีมที่ถนัด Python เช่น ทีม QA ทั่วไป</td></tr>
+      <tr><td>Playwright + TypeScript</td><td>ทีมที่ทำ frontend ด้วย React หรือ Next.js</td></tr>
+      <tr><td>Playwright + Java</td><td>ทีมที่ทำ backend ด้วย Java</td></tr>
+    </table>
+    <div class="box">
+      <strong>ทำไมทีม frontend ถึงเลือก TypeScript?</strong><br><br>
+      ทีม frontend ทำเว็บด้วย React หรือ Next.js<br>
+      React และ Next.js เขียนด้วย TypeScript<br>
+      เพราะฉะนั้นทีมถนัด TypeScript อยู่แล้ว<br>
+      เลยเขียน Playwright ด้วย TypeScript ด้วยเลย ไม่ต้องเรียนภาษาใหม่
+    </div>
+
+    <hr>
+
+    <h2>เปรียบเทียบ Playwright Python vs TypeScript</h2>
+    <p>ทำสิ่งเดียวกัน แค่ syntax ต่างกัน</p>
+
+    <h3>Python</h3>
+    <pre><code class="language-python"># import library
+from playwright.sync_api import Page, expect
+
+# เขียน test
+def test_login(page: Page):
+    page.goto("https://www.saucedemo.com")                    # เปิดหน้าเว็บ
+    page.locator("#user-name").fill("standard_user")          # กรอก username
+    page.locator("#password").fill("secret_sauce")            # กรอก password
+    page.locator("#login-button").click()                     # กดปุ่ม login
+    expect(page).to_have_url("https://www.saucedemo.com/inventory.html")  # เช็ค URL
+
+# รันด้วย
+# pytest tests/</code></pre>
+
+    <h3>TypeScript</h3>
+    <pre><code class="language-typescript">// import library
+import { test, expect } from "@playwright/test"
+
+// เขียน test
+// async = บอกว่า function นี้มีการรอ (await) อยู่ข้างใน
+test("login success", async ({ page }) => {
+    await page.goto("https://www.saucedemo.com")              // เปิดหน้าเว็บ รอให้โหลดเสร็จก่อน
+    await page.locator("#user-name").fill("standard_user")    // กรอก username
+    await page.locator("#password").fill("secret_sauce")      // กรอก password
+    await page.locator("#login-button").click()               // กดปุ่ม login
+    await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html")  // เช็ค URL
+})
+
+// รันด้วย
+// npx playwright test</code></pre>
+
+    <h3>ความต่างที่เห็นได้ชัด</h3>
+    <table>
+      <tr><th>หัวข้อ</th><th>Python</th><th>TypeScript</th></tr>
+      <tr><td>เริ่ม test</td><td>def test_login(page: Page):</td><td>test("login success", async ({ page }) => {</td></tr>
+      <tr><td>เปิดเว็บ</td><td>page.goto(...)</td><td>await page.goto(...)</td></tr>
+      <tr><td>เช็ค URL</td><td>expect().to_have_url()</td><td>await expect().toHaveURL()</td></tr>
+      <tr><td>รัน test</td><td>pytest tests/</td><td>npx playwright test</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>async/await คืออะไร? ทำไม TypeScript ต้องมี?</h2>
+    <p>นี่คือสิ่งที่คนมักงงเวลาเห็น TypeScript ครั้งแรก</p>
+    <div class="box">
+      browser ทำงานแบบ async หมายความว่า มันไม่ได้รอให้งานเสร็จก่อนแล้วค่อยทำงานต่อ<br><br>
+      เหมือนสั่งอาหาร 3 อย่างพร้อมกัน ไม่ได้รอให้อาหารจานแรกมาก่อนแล้วค่อยสั่งจานสอง<br><br>
+      <strong>await</strong> = บอกว่า "รอให้งานนี้เสร็จก่อนนะ แล้วค่อยทำต่อ"<br>
+      <strong>async</strong> = บอกว่า "function นี้มีการรอ (await) อยู่ข้างใน"
+    </div>
+    <pre><code class="language-typescript">// ถ้าไม่มี await — อาจ fill ก่อนที่หน้าเว็บจะโหลดเสร็จ → test fail
+page.goto("https://www.saucedemo.com")
+page.locator("#user-name").fill("standard_user")
+
+// ถ้ามี await — รอให้หน้าเว็บโหลดเสร็จก่อน แล้วค่อย fill
+await page.goto("https://www.saucedemo.com")    // รอให้โหลดเสร็จก่อน
+await page.locator("#user-name").fill("standard_user")  // แล้วค่อย fill</code></pre>
+
+    <div class="warn">
+      <strong>Python ไม่ต้องมี await เพราะอะไร?</strong><br>
+      Playwright Python ใช้ sync_api ที่รอให้เสร็จเองอัตโนมัติ<br>
+      เพราะฉะนั้นเราไม่ต้องเขียน await เอง Python จัดการให้หมด
+    </div>
+
+    <hr>
+
+    <h2>สรุปให้จำง่ายๆ</h2>
+    <table>
+      <tr><th>ภาษา</th><th>คืออะไร</th><th>เหมาะกับ</th></tr>
+      <tr><td>JavaScript</td><td>ภาษาเดิมของเว็บ ไม่มีการตรวจสอบ type</td><td>โปรเจกต์เล็กๆ หรือคนที่เพิ่งเริ่ม</td></tr>
+      <tr><td>TypeScript</td><td>JavaScript + ตรวจสอบ type ก่อน run จับ error ได้เร็วขึ้น</td><td>โปรเจกต์ใหญ่ ทีมที่ทำ React/Next.js</td></tr>
+      <tr><td>Playwright Python</td><td>เขียน Playwright ด้วย Python</td><td>ทีม QA ที่ถนัด Python</td></tr>
+      <tr><td>Playwright TypeScript</td><td>เขียน Playwright ด้วย TypeScript</td><td>ทีม frontend ที่ถนัด TypeScript</td></tr>
+    </table>
+
+    <div class="box">
+      <strong>จำไว้:</strong> ทั้ง Python และ TypeScript ทำสิ่งเดียวกันใน Playwright<br>
+      เลือกใช้ตามที่ทีมถนัด ไม่มีอันไหนดีกว่าอันไหนในแง่ความสามารถ
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

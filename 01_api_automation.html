@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>บทที่ 1: API Automation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; line-height: 1.9; color: #2d2d2d; background: #f9f9f9; }
+  h1 { color: #1a252f; border-bottom: 4px solid #2980b9; padding-bottom: 12px; font-size: 2em; }
+  h2 { color: #2471a3; margin-top: 50px; font-size: 1.4em; border-left: 5px solid #2980b9; padding-left: 12px; }
+  h3 { color: #1a8a72; margin-top: 30px; }
+  p { font-size: 1.05em; }
+  pre { border-radius: 10px; font-size: 14px; line-height: 1.7; margin: 16px 0; }
+  code.inline { background: #eaf0fb; padding: 2px 8px; border-radius: 4px; font-size: 0.95em; color: #c0392b; font-family: monospace; }
+  .box { background: #eaf4fb; border-left: 6px solid #2980b9; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .warn { background: #fef9e7; border-left: 6px solid #f39c12; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .success { background: #eafaf1; border-left: 6px solid #27ae60; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  .danger { background: #fdedec; border-left: 6px solid #e74c3c; padding: 16px 20px; margin: 20px 0; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  th { background: #2c3e50; color: white; padding: 12px 16px; text-align: left; }
+  td { padding: 11px 16px; border-bottom: 1px solid #eee; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  nav { background: #2c3e50; padding: 14px 20px; border-radius: 10px; margin-bottom: 36px; }
+  nav a { color: #ecf0f1; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+  nav a:hover { color: #3498db; }
+  .step { background: white; border: 1px solid #dce6f0; border-radius: 10px; padding: 18px 22px; margin: 14px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .badge { display: inline-block; background: #2980b9; color: white; border-radius: 20px; padding: 2px 12px; font-size: 13px; font-weight: bold; margin-right: 8px; }
+  .badge-green { background: #27ae60; }
+  .badge-orange { background: #e67e22; }
+  .badge-red { background: #e74c3c; }
+  .img-placeholder { background: #dfe6e9; border-radius: 8px; padding: 20px; text-align: center; color: #636e72; margin: 16px 0; font-style: italic; }
+  hr { border: none; border-top: 2px solid #eee; margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="00_index.html">🏠 หน้าหลัก</a>
+  <a href="01_api_automation.html">📡 บทที่ 1: API</a>
+  <a href="02_playwright.html">🎭 บทที่ 2: Playwright</a>
+  <a href="03_robot_framework.html">🤖 บทที่ 3: Robot</a>
+  <a href="04_cicd.html">🚀 บทที่ 4: CI/CD</a>
+  <a href="05_interview_guide.html">🎯 บทที่ 5: สัมภาษณ์</a>
+</nav>
+
+<h1>📡 บทที่ 1: API Automation</h1>
+<p>บทนี้จะสอนตั้งแต่ API คืออะไร จนถึงการเขียน test อัตโนมัติด้วย Python และ Postman</p>
+
+<hr>
+
+<h2>🍽️ API คืออะไร?</h2>
+<p>ลองนึกภาพร้านอาหาร เราไม่ได้เดินเข้าครัวเองเพื่อหยิบอาหาร แต่สั่งผ่านพนักงานเสิร์ฟ</p>
+
+<pre><code class="language-plaintext">
+  แอปมือถือ / เว็บ          ←→         API          ←→       Server / Database
+  (ลูกค้า)                         (พนักงานเสิร์ฟ)              (ครัว)
+
+  ตัวอย่าง:
+  แอปสั่งอาหาร  →  ส่งคำขอ "ขอเมนูทั้งหมด"  →  API ดึงข้อมูลจาก DB แล้วส่งกลับมา
+</code></pre>
+
+<div class="box">
+  <strong>สรุปง่ายๆ:</strong> API คือ "ตัวกลาง" ที่รับคำขอจากแอป แล้วไปดึงข้อมูลจาก server กลับมาให้<br>
+  เราในฐานะ QA ต้องทดสอบว่า API ทำงานถูกต้องมั้ย ตอบกลับถูกมั้ย
+</div>
+
+<hr>
+
+<h2>📬 HTTP Method คืออะไร?</h2>
+<p>เวลาเราคุยกับ API เราต้องบอกว่าจะทำอะไร โดยใช้ HTTP Method เหมือนกับการบอกพนักงานเสิร์ฟว่าจะสั่งอะไร</p>
+
+<table>
+  <tr><th>Method</th><th>ทำอะไร</th><th>ตัวอย่างในชีวิตจริง</th></tr>
+  <tr><td><span class="badge badge-green">GET</span></td><td>ขอดูข้อมูล</td><td>ดูรายการสินค้า, ดูโปรไฟล์ user</td></tr>
+  <tr><td><span class="badge badge-orange">POST</span></td><td>สร้างข้อมูลใหม่</td><td>สมัครสมาชิก, โพสต์รูป</td></tr>
+  <tr><td><span class="badge" style="background:#8e44ad">PUT</span></td><td>แก้ไขข้อมูลทั้งหมด</td><td>แก้ข้อมูลโปรไฟล์ทั้งหมด</td></tr>
+  <tr><td><span class="badge" style="background:#16a085">PATCH</span></td><td>แก้ไขข้อมูลบางส่วน</td><td>แก้แค่ชื่อ ไม่แก้อย่างอื่น</td></tr>
+  <tr><td><span class="badge badge-red">DELETE</span></td><td>ลบข้อมูล</td><td>ลบ account, ลบโพสต์</td></tr>
+</table>
+
+<hr>
+
+<h2>🔢 Status Code คืออะไร?</h2>
+<p>เวลา API ตอบกลับมา มันจะบอกผลด้วยตัวเลข เหมือนพนักงานเสิร์ฟบอกว่า "ได้เลย" หรือ "ของหมดแล้ว"</p>
+
+<table>
+  <tr><th>Code</th><th>ความหมาย</th><th>เจอเมื่อไหร่</th></tr>
+  <tr><td><span class="badge badge-green">200 OK</span></td><td>สำเร็จ</td><td>GET ข้อมูลสำเร็จ</td></tr>
+  <tr><td><span class="badge badge-green">201 Created</span></td><td>สร้างสำเร็จ</td><td>POST สร้าง user ใหม่สำเร็จ</td></tr>
+  <tr><td><span class="badge badge-orange">400 Bad Request</span></td><td>ข้อมูลที่ส่งไปผิด</td><td>กรอก email ผิดรูปแบบ</td></tr>
+  <tr><td><span class="badge badge-orange">401 Unauthorized</span></td><td>ยังไม่ได้ login</td><td>เรียก API โดยไม่มี token</td></tr>
+  <tr><td><span class="badge badge-orange">403 Forbidden</span></td><td>ไม่มีสิทธิ์</td><td>user ธรรมดาเข้า admin page</td></tr>
+  <tr><td><span class="badge badge-red">404 Not Found</span></td><td>ไม่เจอข้อมูล</td><td>หา user id ที่ไม่มีในระบบ</td></tr>
+  <tr><td><span class="badge badge-red">500 Server Error</span></td><td>server พัง</td><td>bug ใน code ของ developer</td></tr>
+</table>
+
+<hr>
+
+<h2>🧪 ทดสอบ API ด้วย Postman (Manual)</h2>
+<p>Postman คือ tool ที่ใช้ทดสอบ API แบบ manual ก่อนที่จะเขียน automation</p>
+
+<h3>ขั้นตอนใช้ Postman</h3>
+
+<div class="step">
+  <span class="badge">1</span> <strong>โหลด Postman</strong> — ไปที่ <a href="https://www.postman.com/downloads/" target="_blank">postman.com/downloads</a> แล้วโหลดฟรี
+</div>
+
+<div class="step">
+  <span class="badge">2</span> <strong>สร้าง Request ใหม่</strong> — กด "New" → "HTTP Request"
+</div>
+
+<div class="step">
+  <span class="badge">3</span> <strong>ใส่ข้อมูล</strong>
+  <pre><code class="language-plaintext">Method:  GET
+URL:     https://jsonplaceholder.typicode.com/users/1
+กด Send</code></pre>
+</div>
+
+<div class="step">
+  <span class="badge">4</span> <strong>ดูผลที่ได้</strong>
+  <pre><code class="language-json">{
+  "id": 1,
+  "name": "Leanne Graham",
+  "username": "Bret",
+  "email": "Sincere@april.biz",
+  "phone": "1-770-736-0988 x56442"
+}</code></pre>
+</div>
+
+<h3>เขียน Test ใน Postman (Automate บางส่วน)</h3>
+<p>Postman มี tab "Tests" ที่เราเขียน JavaScript เพื่อเช็คผลอัตโนมัติได้</p>
+
+<pre><code class="language-javascript">// ===== Tests tab ใน Postman =====
+
+// Test 1: เช็ค status code
+pm.test("Status code is 200", function () {
+    // pm.response.to.have.status = เช็ค status code
+    pm.response.to.have.status(200);
+});
+
+// Test 2: เช็คว่า response มี field "name"
+pm.test("Response has name field", function () {
+    // pm.response.json() = แปลง response เป็น object
+    var jsonData = pm.response.json();
+
+    // pm.expect = เช็คเงื่อนไข
+    pm.expect(jsonData.name).to.exist;
+});
+
+// Test 3: เช็คว่า response time ไม่เกิน 500ms
+pm.test("Response time is less than 500ms", function () {
+    pm.expect(pm.response.responseTime).to.be.below(500);
+});
+
+// Test 4: เช็คว่า Content-Type เป็น JSON
+pm.test("Content-Type is JSON", function () {
+    pm.response.to.have.header("Content-Type");
+    pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+});
+</code></pre>
+
+<h3>Postman Collection Runner (รัน test หลายอันพร้อมกัน)</h3>
+<div class="box">
+  <strong>Collection</strong> คือกลุ่มของ request ที่เกี่ยวข้องกัน เช่น "User API" มี GET, POST, DELETE<br><br>
+  <strong>Collection Runner</strong> คือการรัน request ทั้งหมดใน Collection พร้อมกันทีเดียว แล้วดูผลรวม
+</div>
+
+<pre><code class="language-plaintext">วิธีใช้ Collection Runner:
+1. สร้าง Collection ชื่อ "User API Tests"
+2. เพิ่ม request ทั้งหมดเข้าไป
+3. กด "Run Collection"
+4. ดูผลว่า test ไหน pass/fail
+</code></pre>
+
+<h3>Newman (รัน Postman ใน Terminal)</h3>
+<p>Newman คือ CLI ของ Postman ทำให้รัน Collection ใน Terminal หรือ CI/CD ได้</p>
+
+<pre><code class="language-bash"># ติดตั้ง Newman
+npm install -g newman
+
+# Export Collection จาก Postman แล้วรัน
+newman run my-collection.json
+
+# รันแล้วได้ HTML report
+newman run my-collection.json --reporters html --reporter-html-export report.html
+</code></pre>
+
+<hr>
+
+<h2>🐍 ทดสอบ API ด้วย Python (Full Automation)</h2>
+<p>Python + pytest คือวิธีที่ยืดหยุ่นกว่า Postman เหมาะสำหรับรันใน CI/CD pipeline</p>
+
+<h3>Manual vs Automation เปรียบเทียบ</h3>
+<table>
+  <tr><th>Postman (Manual)</th><th>Python (Automation)</th></tr>
+  <tr><td>พิมพ์ URL แล้วกด Send</td><td>requests.get("URL")</td></tr>
+  <tr><td>ดู status code ด้วยตา</td><td>assert response.status_code == 200</td></tr>
+  <tr><td>ดู JSON body ด้วยตา</td><td>assert "name" in response.json()</td></tr>
+  <tr><td>ทำซ้ำเองทุกครั้ง</td><td>รันอัตโนมัติได้เรื่อยๆ</td></tr>
+  <tr><td>รัน CI/CD ได้ด้วย Newman</td><td>รัน CI/CD ได้ด้วย pytest</td></tr>
+</table>
+
+<h3>ติดตั้งก่อนเลย</h3>
+<pre><code class="language-bash"># เช็คว่ามี Python มั้ย
+python3 --version
+
+# สร้างโฟลเดอร์โปรเจกต์
+mkdir qa-automation-demo
+cd qa-automation-demo
+
+# สร้าง virtual environment
+# คิดว่ามันเหมือน "กล่อง" แยกสำหรับโปรเจกต์นี้
+# ป้องกัน library ของโปรเจกต์นี้ไปปนกับโปรเจกต์อื่น
+python3 -m venv venv
+
+# เปิดใช้งาน venv (จะมี (venv) ขึ้นหน้า terminal)
+source venv/bin/activate
+
+# ติดตั้ง library
+pip install pytest requests pytest-html
+
+# สร้างโฟลเดอร์
+mkdir api_tests
+</code></pre>
+
+<h3>โครงสร้าง API Test มี 2 ส่วน</h3>
+<pre><code class="language-plaintext">ส่วนที่ 1  →  Import library + ตั้งค่า BASE_URL
+ส่วนที่ 2  →  Test Cases จริงๆ (แต่ละ function = 1 test case)
+</code></pre>
+
+<h3>สร้างไฟล์ api_tests/test_api.py</h3>
+
+<pre><code class="language-python"># ============================================================
+# ส่วนที่ 1: Import library + ตั้งค่า
+# ============================================================
+
+# requests คือ library สำหรับยิง HTTP request
+# เหมือน Postman แต่เป็น code
+import requests
+
+# BASE_URL คือ URL หลักของ API ที่จะทดสอบ
+# เก็บไว้ที่เดียว ถ้าต้องเปลี่ยนก็แก้แค่ที่นี่ที่เดียว
+# jsonplaceholder.typicode.com = API ทดสอบฟรี ไม่ต้อง login
+BASE_URL = "https://jsonplaceholder.typicode.com"
+
+
+# ============================================================
+# ส่วนที่ 2: Test Cases
+# ทุก function ที่ขึ้นต้นด้วย test_ จะถูก pytest รันเป็น test case
+# ============================================================
+
+
+# ----------------------------------------------------------
+# Test 1: GET user — เช็คว่าดึงข้อมูล user ได้มั้ย
+# ----------------------------------------------------------
+def test_get_user_returns_200():
+    # requests.get = ส่ง GET request ไปที่ URL นี้
+    # เหมือนกับพิมพ์ URL ใน Postman แล้วกด Send
+    response = requests.get(f"{BASE_URL}/users/1")
+
+    # assert = เช็คเงื่อนไข
+    # ถ้าเงื่อนไขเป็นจริง → ผ่าน อ่านบรรทัดต่อไป
+    # ถ้าเงื่อนไขเป็นเท็จ → test fail ทันที แสดง error
+    assert response.status_code == 200
+
+
+# ----------------------------------------------------------
+# Test 2: GET user — เช็คว่า response มี field ครบมั้ย
+# ----------------------------------------------------------
+def test_get_user_has_correct_fields():
+    response = requests.get(f"{BASE_URL}/users/1")
+
+    # .json() = แปลง response จาก text เป็น dictionary Python
+    # เหมือนข้อมูล JSON ที่เห็นใน Postman panel ด้านล่าง
+    body = response.json()
+
+    # "id" in body = เช็คว่า key "id" มีอยู่ใน dictionary มั้ย
+    assert "id" in body       # ต้องมี field id
+    assert "name" in body     # ต้องมี field name
+    assert "email" in body    # ต้องมี field email
+    assert "phone" in body    # ต้องมี field phone
+
+
+# ----------------------------------------------------------
+# Test 3: GET user — เช็คว่าค่าที่ได้ถูกต้องมั้ย
+# ----------------------------------------------------------
+def test_get_user_correct_values():
+    response = requests.get(f"{BASE_URL}/users/1")
+    body = response.json()
+
+    # เช็คว่า id ที่ได้กลับมาตรงกับที่ขอมั้ย
+    assert body["id"] == 1
+
+    # เช็คว่า name ไม่ใช่ค่าว่าง
+    assert body["name"] != ""
+
+    # เช็คว่า email มี @ อยู่ (รูปแบบ email ถูกต้อง)
+    assert "@" in body["email"]
+
+
+# ----------------------------------------------------------
+# Test 4: POST — เช็คว่าสร้างข้อมูลใหม่ได้มั้ย
+# ----------------------------------------------------------
+def test_create_post_returns_201():
+    # payload = ข้อมูลที่จะส่งไปสร้างใหม่
+    # เหมือนกับที่เราใส่ใน Body tab ของ Postman
+    payload = {
+        "title": "test post",
+        "body": "hello world",
+        "userId": 1
+    }
+
+    # requests.post = ส่ง POST request พร้อมข้อมูล
+    # json=payload = ส่ง payload เป็น JSON body
+    response = requests.post(f"{BASE_URL}/posts", json=payload)
+
+    # 201 = Created = สร้างสำเร็จ
+    assert response.status_code == 201
+
+    # เช็คว่าข้อมูลที่ได้กลับมาตรงกับที่ส่งไปมั้ย
+    result = response.json()
+    assert result["title"] == "test post"
+    assert result["body"] == "hello world"
+    assert result["userId"] == 1
+
+
+# ----------------------------------------------------------
+# Test 5: PUT — เช็คว่าแก้ไขข้อมูลได้มั้ย
+# ----------------------------------------------------------
+def test_update_post_returns_200():
+    # ข้อมูลที่จะแก้ไข
+    payload = {
+        "id": 1,
+        "title": "updated title",
+        "body": "updated body",
+        "userId": 1
+    }
+
+    # requests.put = ส่ง PUT request เพื่อแก้ไขข้อมูล
+    response = requests.put(f"{BASE_URL}/posts/1", json=payload)
+
+    assert response.status_code == 200
+    assert response.json()["title"] == "updated title"
+
+
+# ----------------------------------------------------------
+# Test 6: DELETE — เช็คว่าลบข้อมูลได้มั้ย
+# ----------------------------------------------------------
+def test_delete_post_returns_200():
+    # requests.delete = ส่ง DELETE request
+    response = requests.delete(f"{BASE_URL}/posts/1")
+
+    # 200 = OK = ลบสำเร็จ
+    assert response.status_code == 200
+
+
+# ----------------------------------------------------------
+# Test 7: Edge Case — หา user ที่ไม่มีในระบบ ต้องได้ 404
+# ----------------------------------------------------------
+def test_get_nonexistent_user_returns_404():
+    # ส่ง id ที่ไม่มีในระบบ
+    response = requests.get(f"{BASE_URL}/users/99999")
+
+    # ต้องได้ 404 Not Found กลับมา
+    assert response.status_code == 404
+</code></pre>
+
+<h3>รัน Test</h3>
+<pre><code class="language-bash"># รัน test ทั้งหมด พร้อมแสดงชื่อแต่ละ test
+pytest api_tests/ -v
+
+# รันแล้วได้ HTML report ด้วย
+pytest api_tests/ -v --html=report.html
+</code></pre>
+
+<div class="success">
+  <strong>✅ ผลที่ควรได้:</strong>
+  <pre style="background:transparent; padding:0; margin:10px 0 0 0; color:#1a5e2a;">
+api_tests/test_api.py::test_get_user_returns_200          PASSED
+api_tests/test_api.py::test_get_user_has_correct_fields   PASSED
+api_tests/test_api.py::test_get_user_correct_values       PASSED
+api_tests/test_api.py::test_create_post_returns_201       PASSED
+api_tests/test_api.py::test_update_post_returns_200       PASSED
+api_tests/test_api.py::test_delete_post_returns_200       PASSED
+api_tests/test_api.py::test_get_nonexistent_user_returns_404  PASSED
+
+7 passed in 2.34s</pre>
+</div>
+
+<hr>
+
+
+<h2>📝 Postman Syntax พื้นฐานที่ควรรู้</h2>
+<p>syntax เหล่านี้คือสิ่งที่ใช้บ่อยที่สุดใน Postman Tests tab และเหมาะสำหรับใช้สัมภาษณ์ candidate</p>
+
+<h3>1. เช็ค Status Code</h3>
+<pre><code class="language-javascript">pm.test("Status code is 200", function () {
+    // pm.test("ชื่อ test", function(){...})
+    // ชื่อ test = จะแสดงใน report ตั้งชื่ออะไรก็ได้ให้สื่อความหมาย
+    pm.response.to.have.status(200);
+});
+</code></pre>
+
+<h3>2. เช็คว่า field มีอยู่มั้ย (.to.exist)</h3>
+<pre><code class="language-javascript">pm.test("Response has name field", function () {
+    // pm.response.json() = แปลง response จาก text ธรรมดา → เป็น object ที่จับต้องได้
+    // เหมือนแปลงกล่องปิดตา → กล่องที่เปิดดูข้างในได้
+    var jsonData = pm.response.json();
+
+    // jsonData.name = ดึงค่าของ field "name" ออกมา
+    // .to.exist = เช็คว่ามีค่าอยู่จริงมั้ย ไม่ใช่ค่าว่าง
+    // ถ้าไม่มี field name → test fail ทันที
+    pm.expect(jsonData.name).to.exist;
+});
+</code></pre>
+<div class="box">
+  <strong>ตัวอย่างให้เห็นภาพ:</strong><br>
+  สมมุติ API ส่งกลับมาแบบนี้
+  <pre style="background:#1e1e1e; color:#d4d4d4; padding:12px; border-radius:6px; margin-top:10px">{
+  "id": 1,
+  "name": "สมชาย",
+  "email": "somchai@test.com"
+}</pre>
+  หลังจาก <code class="inline">.json()</code> แล้ว เราเข้าถึงได้เลยว่า<br>
+  <code class="inline">jsonData.name</code> = "สมชาย"<br>
+  <code class="inline">jsonData.email</code> = "somchai@test.com"<br><br>
+  ถ้า API ไม่มี field name ส่งกลับมา → <code class="inline">jsonData.name</code> = undefined → <strong>test fail ทันที</strong>
+</div>
+
+<h3>3. เช็คว่าค่าถูกต้องมั้ย (.to.eql)</h3>
+<pre><code class="language-javascript">pm.test("Name is correct", function () {
+    var jsonData = pm.response.json();
+
+    // .to.eql = เช็คว่าค่าตรงกับที่กำหนดมั้ย
+    // ต่างจาก .to.exist ตรงที่ระบุค่าที่คาดหวังได้เลย
+    pm.expect(jsonData.name).to.eql("สมชาย");
+});
+</code></pre>
+<table>
+  <tr><th>Syntax</th><th>ใช้เมื่อไหร่</th><th>ตัวอย่าง</th></tr>
+  <tr><td><code class="inline">.to.exist</code></td><td>เช็คแค่ว่ามี field อยู่มั้ย ไม่สนใจค่า</td><td>มี field name มั้ย?</td></tr>
+  <tr><td><code class="inline">.to.eql</code></td><td>เช็คว่าค่าตรงกับที่กำหนดมั้ย</td><td>name ต้องเป็น "สมชาย"</td></tr>
+</table>
+
+<h3>4. เช็ค Response Time</h3>
+<pre><code class="language-javascript">pm.test("Response time is acceptable", function () {
+    // pm.response.responseTime = เวลาที่ API ใช้ตอบกลับ (หน่วยเป็น ms)
+    // .to.be.below(500) = ต้องน้อยกว่า 500ms
+    pm.expect(pm.response.responseTime).to.be.below(500);
+});
+</code></pre>
+
+<h3>5. เช็ค Header</h3>
+<pre><code class="language-javascript">pm.test("Content-Type is JSON", function () {
+    // Header คือข้อมูลเพิ่มเติมที่ API ส่งมาพร้อม response
+    // Content-Type บอกว่าข้อมูลที่ส่งมาเป็นประเภทอะไร
+    pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+});
+</code></pre>
+
+<h3>สรุป Pattern ที่ต้องจำ</h3>
+<pre><code class="language-javascript">// โครงสร้างหลักของทุก test ใน Postman
+pm.test("ชื่อ test ที่จะโชว์ใน report", function () {
+
+    var jsonData = pm.response.json();  // แปลง response เป็น object ก่อนเสมอ
+
+    pm.response.to.have.status(200);                        // เช็ค status code
+    pm.expect(jsonData.name).to.exist;                      // เช็คว่ามี field มั้ย
+    pm.expect(jsonData.name).to.eql("ค่าที่คาดหวัง");       // เช็คว่าค่าถูกมั้ย
+    pm.expect(pm.response.responseTime).to.be.below(500);  // เช็ค response time
+
+});
+</code></pre>
+
+<hr>
+
+<h2>❓ คำถามสัมภาษณ์ที่ควรรู้</h2>
+
+<h3>ระดับเริ่มต้น</h3>
+<div class="box">
+  <strong>Q: pm.test คืออะไร?</strong><br>
+  A: function สำหรับสร้าง test case ใน Postman รับ 2 อย่างคือ ชื่อ test และสิ่งที่จะเช็ค<br><br>
+
+  <strong>Q: pm.response.json() คืออะไร?</strong><br>
+  A: แปลง response จาก text ธรรมดาให้เป็น object เพื่อให้เข้าถึง field แต่ละตัวได้<br><br>
+
+  <strong>Q: .to.exist กับ .to.eql ต่างกันยังไง?</strong><br>
+  A: exist = เช็คแค่ว่ามี field อยู่มั้ย, eql = เช็คว่าค่าตรงกับที่กำหนดมั้ย<br><br>
+
+  <strong>Q: Status Code 200, 201, 400, 401, 404, 500 คืออะไร?</strong><br>
+  A: 200=สำเร็จ, 201=สร้างสำเร็จ, 400=ข้อมูลผิด, 401=ไม่ได้ login, 404=ไม่เจอ, 500=server พัง
+</div>
+
+<h3>ระดับกลาง</h3>
+<div class="box">
+  <strong>Q: นอกจาก status code ควรเช็คอะไรอีก?</strong><br>
+  A: response body (field ครบมั้ย ค่าถูกมั้ย), response time, header<br><br>
+
+  <strong>Q: Edge Case คืออะไร ยกตัวอย่างได้มั้ย?</strong><br>
+  A: กรณีผิดปกติ เช่น ส่งข้อมูลว่าง ส่ง id ที่ไม่มีในระบบ เพื่อเช็คว่า API จัดการ error ได้ถูกต้องมั้ย<br><br>
+
+  <strong>Q: Collection Runner คืออะไร?</strong><br>
+  A: รัน request ทั้งหมดใน Collection พร้อมกันทีเดียว แล้วดูผลรวมว่า test ไหน pass/fail<br><br>
+
+  <strong>Q: Newman คืออะไร?</strong><br>
+  A: CLI ของ Postman ทำให้รัน Collection ใน Terminal หรือ CI/CD ได้โดยไม่ต้องเปิด Postman
+</div>
+<h2>❓ คำถามสัมภาษณ์ที่ควรรู้</h2>
+
+<div class="box">
+  <strong>Q: Assert คืออะไร?</strong><br>
+  A: การตรวจสอบว่าผลลัพธ์ตรงกับที่คาดหวังมั้ย ถ้าไม่ตรง test fail ทันที<br><br>
+
+  <strong>Q: ทำไมต้อง Automate API แทนที่จะใช้ Postman?</strong><br>
+  A: Postman ต้องนั่งกดเองทุกครั้ง Automation รันซ้ำได้เองและรันใน CI/CD ได้<br><br>
+
+  <strong>Q: Postman กับ Python ต่างกันยังไง?</strong><br>
+  A: Postman ใช้งานง่ายกว่า เหมาะ manual test, Python ยืดหยุ่นกว่า เหมาะ CI/CD<br><br>
+
+  <strong>Q: Status Code 200, 201, 400, 401, 404, 500 คืออะไร?</strong><br>
+  A: 200=สำเร็จ, 201=สร้างสำเร็จ, 400=ข้อมูลผิด, 401=ไม่ได้ login, 404=ไม่เจอ, 500=server พัง<br><br>
+
+  <strong>Q: Edge Case คืออะไร?</strong><br>
+  A: การทดสอบกรณีที่ผิดปกติ เช่น ส่งข้อมูลว่าง ส่ง id ที่ไม่มี เพื่อเช็คว่า API จัดการ error ได้ถูกต้องมั้ย
+</div>
+
+<hr>
+
+<h2>📋 สรุปบทที่ 1</h2>
+<pre><code class="language-plaintext">API Document จาก Dev
+        ↓
+QA อ่าน Document แล้วตั้งคำถามว่า
+"ถ้าทำแบบนี้ ควรได้ผลแบบไหน?"
+        ↓
+ทดสอบ Manual ด้วย Postman ก่อน
+        ↓
+เขียน Automation script ด้วย Python
+        ↓
+pytest รัน test และรายงานผล pass/fail
+</code></pre>
+
+<div class="warn">
+  <strong>💡 จำไว้:</strong> QA ไม่ได้คิด script เอง แต่คิดจาก API Document + ความเข้าใจว่าอะไรควรเกิดขึ้น
+</div>
+
+</body>
+</html>
