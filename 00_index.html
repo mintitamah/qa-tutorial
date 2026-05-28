@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>คู่มือ QA Automation</title>
+<style>
+  body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.8; color: #333; }
+  h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+  h2 { color: #2980b9; margin-top: 40px; }
+  pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; overflow-x: auto; font-size: 14px; line-height: 1.6; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 14px; color: #c0392b; }
+  .box { background: #eaf4fb; border-left: 5px solid #3498db; padding: 15px 20px; margin: 20px 0; border-radius: 4px; }
+  .warn { background: #fef9e7; border-left: 5px solid #f39c12; padding: 15px 20px; margin: 20px 0; border-radius: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th { background: #2c3e50; color: white; padding: 10px; text-align: left; }
+  td { padding: 10px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .card h3 { margin-top: 0; color: #2c3e50; }
+  .card a { display: inline-block; margin-top: 10px; background: #3498db; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; }
+  .card a:hover { background: #2980b9; }
+</style>
+</head>
+<body>
+
+<h1>📚 คู่มือ QA Automation ฉบับเริ่มต้นจากศูนย์</h1>
+<p>สำหรับ QA Lead ที่อยากเข้าใจ Automation ตั้งแต่พื้นฐาน</p>
+
+<h2>บทเรียนทั้งหมด</h2>
+
+<div class="card">
+  <h3>บทที่ 1: API Automation</h3>
+  <p>API คืออะไร, HTTP Method, Status Code, Manual vs Automation, เขียน test ด้วย Python + requests</p>
+  <a href="01_api_automation.html">อ่านบทที่ 1 →</a>
+</div>
+
+<div class="card">
+  <h3>บทที่ 2: Playwright (UI Automation)</h3>
+  <p>Playwright คืออะไร, Page Object Model, Locator, เขียน test หน้า login ของ saucedemo.com</p>
+  <a href="02_playwright.html">อ่านบทที่ 2 →</a>
+</div>
+
+<div class="card">
+  <h3>บทที่ 3: Robot Framework</h3>
+  <p>Keyword-driven testing, โครงสร้าง 4 ส่วน, เปรียบเทียบกับ Playwright, เขียน test แบบอ่านง่าย</p>
+  <a href="03_robot_framework.html">อ่านบทที่ 3 →</a>
+</div>
+
+<div class="card">
+  <h3>บทที่ 4: CI/CD Pipeline</h3>
+  <p>CI/CD คืออะไร, Git คืออะไร, สร้าง GitHub Actions, Push code ขึ้น GitHub ทีละขั้นตอน</p>
+  <a href="04_cicd.html">อ่านบทที่ 4 →</a>
+</div>
+
+<div class="card">
+  <h3>บทที่ 5: คู่มือสัมภาษณ์ QA Automation</h3>
+  <p>Robot Framework vs Playwright, Tech Stack, โครงสร้างไฟล์, CI/CD กับ Azure DevOps, คำถามสัมภาษณ์พร้อมคำตอบที่ดีและน่าเป็นห่วง</p>
+  <a href="05_interview_guide.html">อ่านบทที่ 5 →</a>
+</div>
+
+<h2>ภาพรวม Tool ทั้งหมด</h2>
+<table>
+  <tr><th>Tool</th><th>ทำอะไร</th></tr>
+  <tr><td>Python</td><td>ภาษาที่ใช้เขียน script ทั้งหมด</td></tr>
+  <tr><td>Playwright</td><td>หุ่นยนต์ที่ควบคุม browser แทนเรา</td></tr>
+  <tr><td>pytest</td><td>ตัวรัน test และสรุปผล pass/fail</td></tr>
+  <tr><td>requests</td><td>ตัวยิง API เหมือน Postman แต่เป็น code</td></tr>
+  <tr><td>Robot Framework</td><td>อีก tool สำหรับเขียน test อ่านง่ายกว่า</td></tr>
+  <tr><td>GitHub</td><td>ที่เก็บ code บน internet</td></tr>
+  <tr><td>GitHub Actions</td><td>พนักงานอัตโนมัติที่รัน test ให้ทุกครั้งที่ push code</td></tr>
+</table>
+
+<h2>โครงสร้างแต่ละ Tool</h2>
+<table>
+  <tr><th>Tool</th><th>โครงสร้าง</th></tr>
+  <tr><td>API Test</td><td>Import + Test Cases</td></tr>
+  <tr><td>Playwright</td><td>Import + Page Object + Test Cases</td></tr>
+  <tr><td>Robot Framework</td><td>Settings + Variables + Test Cases + Keywords</td></tr>
+  <tr><td>CI/CD</td><td>Trigger + Jobs + Steps</td></tr>
+</table>
+
+<h2>เว็บที่ใช้ฝึก</h2>
+<div class="box">
+  <strong>UI Automation:</strong> <a href="https://www.saucedemo.com" target="_blank">https://www.saucedemo.com</a><br>
+  username: <code>standard_user</code> &nbsp; password: <code>secret_sauce</code><br><br>
+  <strong>API Automation:</strong> <a href="https://jsonplaceholder.typicode.com" target="_blank">https://jsonplaceholder.typicode.com</a><br>
+  ไม่ต้อง login ไม่ต้อง key ใดๆ
+</div>
+
+<h2>Flow การทำงานทั้งหมด</h2>
+<pre>
+เขียน test code
+        ↓
+git push ขึ้น GitHub
+        ↓
+GitHub Actions รัน test อัตโนมัติ
+        ↓
+ถ้า pass ✅ → merge ได้
+ถ้า fail ❌ → แจ้งเตือน ต้องแก้ก่อน
+        ↓
+ดู report ว่า fail ตรงไหน
+</pre>
+
+<h2>คำถามสัมภาษณ์สรุปทั้งหมด</h2>
+<table>
+  <tr><th>คำถาม</th><th>คำตอบ</th></tr>
+  <tr><td>Assert คืออะไร?</td><td>การตรวจสอบว่าผลลัพธ์ตรงกับที่คาดหวังมั้ย ถ้าไม่ตรง test fail ทันที</td></tr>
+  <tr><td>Page Object Model คืออะไร?</td><td>Pattern แยก locator ออกเป็น class แยก ทำให้ maintain ง่าย แก้ที่เดียวทุก test ได้รับผล</td></tr>
+  <tr><td>Playwright ต่างจาก Selenium?</td><td>Auto-wait, เร็วกว่า, API ใช้งานง่ายกว่า</td></tr>
+  <tr><td>Keyword-driven testing คืออะไร?</td><td>เขียน test เป็น keyword อ่านง่าย ไม่ต้องรู้ code ลึก</td></tr>
+  <tr><td>CI/CD คืออะไร?</td><td>ระบบรัน test อัตโนมัติทุกครั้งที่ push code ป้องกัน bug หลุดไป production</td></tr>
+  <tr><td>Status Code 200, 201, 404, 500?</td><td>200=สำเร็จ, 201=สร้างสำเร็จ, 404=ไม่เจอ, 500=server พัง</td></tr>
+</table>
+
+</body>
+</html>
